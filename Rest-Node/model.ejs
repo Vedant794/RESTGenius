@@ -1,0 +1,52 @@
+const mongoose = require('mongoose');
+const schema=mongoose.Schema
+
+const <%= schemaName %>Schema = new schema({
+  <% attributes.forEach(attribute => { %>
+    <%= attribute.name %>: {
+      type: <%= 
+        attribute.type === 'String' ? 'String' : 
+        attribute.type === 'Number' ? 'Number' : 
+        attribute.type === 'Date' ? 'Date' : 
+        attribute.type === 'Boolean' ? 'Boolean' : 
+        'Object' 
+      %>,
+      <% if (attribute.isRequired) { %> required: true, <% } %>
+      <% if (attribute.isUnique) { %> unique: true, <% } %>
+      <% if (attribute.isIndexed) { %> index: true, <% } %>
+      <% if (attribute.type === 'Object' && attribute.objectAttributes.length > 0) { %>
+        properties: {
+          <% attribute.objectAttributes.forEach(subAttribute => { %>
+            <%= subAttribute.name %>: {
+              type: <%= 
+                subAttribute.type === 'String' ? 'String' : 
+                subAttribute.type === 'Number' ? 'Number' : 
+                subAttribute.type === 'Date' ? 'Date' : 
+                subAttribute.type === 'Boolean' ? 'Boolean' : 
+                'Object' 
+              %>,
+              <% if (subAttribute.isRequired) { %> required: true, <% } %>
+              <% if (subAttribute.objectAttributes && subAttribute.objectAttributes.length > 0) { %>
+                properties: {
+                  <% subAttribute.objectAttributes.forEach(subSubAttribute => { %>
+                    <%= subSubAttribute.name %>: {
+                      type: <%= 
+                        subSubAttribute.type === 'String' ? 'String' : 
+                        subSubAttribute.type === 'Number' ? 'Number' : 
+                        subSubAttribute.type === 'Date' ? 'Date' : 
+                        subSubAttribute.type === 'Boolean' ? 'Boolean' : 
+                        'Object' 
+                      %>
+                    },
+                  <% }); %>
+                },
+              <% } %>
+            },
+          <% }); %>
+        },
+      <% } %>
+    },
+  <% }); %>
+});
+
+module.exports = mongoose.model('<%= schemaName %>', <%= schemaName %>Schema);
