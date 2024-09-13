@@ -1,0 +1,17 @@
+package com.example.demo.model;
+
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
+
+@Data 
+@AllArgsConstructor 
+@NoArgsConstructor 
+@Builder 
+public class [[${name}]] {
+
+    [# th:each="field : ${fields}" ]
+        private [(${field.type})] [(${field.name})]; 
+    [/]
+}

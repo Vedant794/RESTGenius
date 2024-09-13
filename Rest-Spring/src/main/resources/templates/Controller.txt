@@ -1,0 +1,47 @@
+package [[${Atrifact}]].controller;
+
+import [[${Atrifact}]].model.[[${Entity}]];
+import [[${Atrifact}]].service.[[${EntityService}]];
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/entities")
+public class [[${Entity}]]Controller {
+
+    @Autowired
+    private [[${EntityService}]] [[${entityService}]];
+
+  [[${Entity}]]
+    @PostMapping
+    public [[${Entity}]] create[[${Entity}]](@RequestBody   [[${Entity}]] [[${entity}]]) {
+        return [[${entityService}]].create[[${Entity}]]([[${entity}]]);
+    }
+
+    
+    @GetMapping
+    public List<[[${Entity}]]> getAll[[${Entity}]]s() {
+        return [[${entityService}]].getAll[[${Entity}]]s();
+    }
+
+    
+    @GetMapping("/{id}")
+    public Optional<[[${Entity}]]> get[[${Entity}]]ById(@PathVariable String id) {
+        return [[${entityService}]].get[[${Entity}]]ById(id);
+    }
+
+   
+    @PutMapping("/{id}")
+    public [[${Entity}]] update[[${Entity}]](@PathVariable String id, @RequestBody [[${Entity}]] [[${entity}]]) {
+        return [[${entityService}]].update[[${Entity}]](id, [[${entity}]]);
+    }
+
+  
+    @DeleteMapping("/{id}")
+    public void delete[[${Entity}]](@PathVariable String id) {
+        [[${entityService}]].delete[[${Entity}]](id);
+    }
+}

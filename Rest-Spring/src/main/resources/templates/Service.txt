@@ -1,0 +1,41 @@
+package com.example.demo.service;
+
+import com.example.demo.model.[[${Entity}]];
+import com.example.demo.repository.[[${EntityRepository}]];
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class [[${Entity}]]Service {
+
+    @Autowired
+    private [[${EntityRepository}]]  [[${entityRepository}]];
+
+    public [[${Entity}]] create[[${Entity}]]([[${Entity}]] [[${entity}]]) {
+        return [[${entityRepository}]].save([[${entity}]]);
+    }
+
+    public List<[[${Entity}]]> getAll[[${Entity}]]s() {
+        return [[${entityRepository}]].findAll();
+    }
+
+    public Optional<[[${Entity}]]> get[[${Entity}]]ById(String id) {
+        return [[${entityRepository}]].findById(id);
+    }
+
+    public [[${Entity}]] update[[${Entity}]] (String id, [[${Entity}]]  new[[${Entity}]] ) {
+        if ([[${entityRepository}]].existsById(id)) {
+            new[[${Entity}]] .setId(id); 
+            return [[${entityRepository}]].save(new[[${Entity}]] );
+        } else {
+            throw new RuntimeException("[[${Entity}]]  not found");
+        }
+    }
+
+    public void delete[[${Entity}]] (String id) {
+        [[${entityRepository}]].deleteById(id);
+    }
+}
