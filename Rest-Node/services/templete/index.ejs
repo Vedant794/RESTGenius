@@ -1,0 +1,21 @@
+const express=require('express');
+const {connectDb}=require('./connectDb.js')
+<% schemas.forEach(element => { %>
+const <%= element.schemaName %>Routes=require('./Routes/<%= element.schemaName %>Routes.js')
+<% }) %>
+
+const app=express();
+
+<% schemas.forEach(element => { %>
+app.use('<%= projectName %>/v1/<%= element.schemaName %>',<%= element.schemaName %>Routes)
+<% }) %>
+
+const start=async()=>{
+    try {
+        await connectDb().then(()=>app.listen(<%= Port %>,()=>console.log(`Server Started at Port:<%= Port %>`))).catch((err)=>console.log(err))
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+start()
