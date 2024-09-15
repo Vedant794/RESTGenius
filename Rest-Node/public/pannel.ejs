@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generated Code Files</title>
+</head>
+<body>
+  <h1>Generated Files</h1>
+  
+  <% files.forEach(file => { %>
+    <h2><%= file.name %> (Path: <%= file.path %>)</h2>
+    <pre><code><%= file.content %></code></pre>
+  <% }); %>
+
+</body>
+</html>

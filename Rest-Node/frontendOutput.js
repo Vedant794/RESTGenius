@@ -1,7 +1,13 @@
-const data=[
+export const data=[
     {
+      "projectName": "socialMedia",
+      "Port":8000,
+      "mongoUri":"mongodb://127.0.0.1:27017/",
+      "schemas":[
+        {
         "schemaName": "UserProfile",
         "varName": "userProfile",
+        "userSelection":['getAllInfo','deleteAllInfo'],
         "attributes": [
           {
             "name": "username",
@@ -63,7 +69,7 @@ const data=[
             ]
           }
         ]
-      }
+      
+      }]
+    }
 ]
-
-export default data

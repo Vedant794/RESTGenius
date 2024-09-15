@@ -1,0 +1,36 @@
+const express=require('express');
+const app=express();
+const router=express.Router()
+const <%= schemaName %>Routes=require('../controllers/<%= schemaName %>Controller.js');
+
+<% if (userSelection.includes('getAllInfo')) { %>
+//For all information
+ router.get('/getAll',<%= schemaName %>Routes.getAllInfo())
+<% } %>
+
+<% if (userSelection.includes('getInfoById')) { %>
+ //Gives Information with the help of id
+ router.get('/getById/:id',<%= schemaName %>Routes.getInfoById())
+<% } %>
+
+<% if (userSelection.includes('postInfo')) { %>
+ //Post Information to  Database
+ router.post('/create',<%= schemaName %>Routes.postInfo())
+<% } %>
+
+<% if (userSelection.includes('updateInfoById')) { %>
+ //Update Information by id
+ router.put('/updateInfo/:id',<%= schemaName %>Routes.updateInfoById())
+<% } %>
+
+<% if (userSelection.includes('deleteInfoById')) { %>
+ //Delete Information with the help of id
+ router.delete('/deleteById/:id',<%= schemaName %>Routes.deleteInfoById)
+<% } %>
+
+<% if (userSelection.includes('deleteAllInfo')) { %>
+//Delete All Information
+router.delete('/deleteAll',<%= schemaName %>Routes.deleteAllInfo)
+<% } %>
+
+module.exports=router;

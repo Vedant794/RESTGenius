@@ -1,0 +1,44 @@
+const <%= schemaName %> = require('../models/<%= schemaName %>.js');
+
+<% if (userSelection.includes('getAllInfo')) { %>
+// Fetch all information
+exports.getAllInfo = async () => {
+  return await <%= schemaName %>.find();
+};
+<% } %>
+
+<% if (userSelection.includes('getInfoById')) { %>
+// Fetch information by ID
+exports.getInfoById = async (id) => {
+  return await <%= schemaName %>.findById(id);
+};
+<% } %>
+
+<% if (userSelection.includes('postInfo')) { %>
+// Create new information
+exports.postInfo = async (data) => {
+  const newData = new <%= schemaName %>(data);
+  return await newData.save();
+};
+<% } %>
+
+<% if (userSelection.includes('updateInfoById')) { %>
+// Update information by ID
+exports.updateInfoById = async (id, data) => {
+  return await <%= schemaName %>.findByIdAndUpdate(id, data, { new: true });
+};
+<% } %>
+
+<% if (userSelection.includes('deleteInfoById')) { %>
+// Delete information by ID
+exports.deleteInfoById = async (id) => {
+  return await <%= schemaName %>.findByIdAndDelete(id);
+};
+<% } %>
+
+<% if (userSelection.includes('deleteAllInfo')) { %>
+// Delete all information
+exports.deleteAllInfo = async () => {
+  return await <%= schemaName %>.deleteMany();
+};
+<% } %>
