@@ -1,11 +1,12 @@
-import React from 'react'
+// import React from 'react'
+import HomePage from './components/HomePage'
+import Footer from './components/Footer'
 
 function App() {
   return (
     <>
-      <h1 className="text-3xl font-bold underline text-center">
-      Hello world!
-    </h1>
+    <HomePage/>
+    <Footer/>
     </>
   )
 }
