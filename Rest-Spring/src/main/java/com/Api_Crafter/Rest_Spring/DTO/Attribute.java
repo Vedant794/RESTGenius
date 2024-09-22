@@ -9,20 +9,30 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+
 public class Attribute {
 
-	String name;
-	
-	String type;
-	
-	String dbname;
-	
-	@Nullable
-	List<ObjectAttribute>objectAttributes;
-	public Boolean hasObjectAttribute() {
-	    return objectAttributes != null && !objectAttributes.isEmpty();
-	}
+    private String var_name;
 
-	
+    private String db_type;
+
+    private String var_dbname;
+    
+    private boolean isSet;
+    
+    private boolean isList;
+    
+    private boolean isObject;
+
+    private boolean isDate;
+    
+    private boolean isUUID;
+    
+    private boolean isRequired;
+    
+    private boolean isIndexed;
+
+    @Nullable
+    private List<Attribute> attributes;
+
 }

@@ -1,0 +1,3 @@
+public [[${Entity}]] create[[${Entity}]]([[${Entity}]] [[${entity}]]) {
+			    return [[${entityRepository}]].save([[${entity}]]);
+		}

@@ -1,0 +1,4 @@
+           @GetMapping
+		 public List<[[${Entity}]]> getAll[[${Entity}]]s() {
+		 return [[${entityService}]].getAll[[${Entity}]]s();
+		   }

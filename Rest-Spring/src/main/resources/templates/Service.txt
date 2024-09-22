@@ -14,28 +14,7 @@ public class [[${Entity}]]Service {
     @Autowired
     private [[${EntityRepository}]]  [[${entityRepository}]];
 
-    public [[${Entity}]] create[[${Entity}]]([[${Entity}]] [[${entity}]]) {
-        return [[${entityRepository}]].save([[${entity}]]);
-    }
-
-    public List<[[${Entity}]]> getAll[[${Entity}]]s() {
-        return [[${entityRepository}]].findAll();
-    }
-
-    public Optional<[[${Entity}]]> get[[${Entity}]]ById(String id) {
-        return [[${entityRepository}]].findById(id);
-    }
-
-    public [[${Entity}]] update[[${Entity}]] (String id, [[${Entity}]]  new[[${Entity}]] ) {
-        if ([[${entityRepository}]].existsById(id)) {
-            new[[${Entity}]] .setId(id); 
-            return [[${entityRepository}]].save(new[[${Entity}]] );
-        } else {
-            throw new RuntimeException("[[${Entity}]]  not found");
-        }
-    }
-
-    public void delete[[${Entity}]] (String id) {
-        [[${entityRepository}]].deleteById(id);
-    }
+      [# th:each="Service : ${Services}"]
+       [[${Service}]]
+    [/]
 }

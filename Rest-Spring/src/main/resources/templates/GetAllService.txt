@@ -1,0 +1,3 @@
+   public List<[[${Entity}]]> getAll[[${Entity}]]s() {
+		 return [[${entityRepository}]].findAll();
+			};
