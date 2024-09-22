@@ -1,12 +1,18 @@
 // import React from 'react'
 import HomePage from './components/HomePage'
-import Footer from './components/Footer'
+import GetStarted from './components/GetStarted'
+import { BrowserRouter,Routes,Route } from "react-router-dom";
+
 
 function App() {
   return (
     <>
-    <HomePage/>
-    <Footer/>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<HomePage/>}></Route>
+        <Route path='/getstarted' element={<GetStarted/>}></Route>
+      </Routes>
+    </BrowserRouter>
     </>
   )
 }
