@@ -4,14 +4,18 @@ import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
+[# th:each="import : ${imports}"]  
+[[${import}]]
+[/]
 
 @Data 
 @AllArgsConstructor 
 @NoArgsConstructor 
 @Builder 
-public class [[${name}]] {
+public class [[${Entity}]] {
 
-    [# th:each="field : ${fields}" ]
-        private [(${field.type})] [(${field.name})]; 
+  [# th:each="field : ${fields}"]
+        [[${field.annotation}]]   
+        private [[${field.field}]];
     [/]
 }

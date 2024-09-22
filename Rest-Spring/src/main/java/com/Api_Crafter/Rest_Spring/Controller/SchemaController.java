@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.Api_Crafter.Rest_Spring.DTO.OutputDTO;
 import com.Api_Crafter.Rest_Spring.DTO.ProjectDetails;
-import com.Api_Crafter.Rest_Spring.Services.EntityService;
+
 import com.Api_Crafter.Rest_Spring.Utils.GeneratorFactory;
 import com.Api_Crafter.Rest_Spring.Utils.Generator;
 @RestController

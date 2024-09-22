@@ -15,33 +15,7 @@ public class [[${Entity}]]Controller {
     @Autowired
     private [[${EntityService}]] [[${entityService}]];
 
-  [[${Entity}]]
-    @PostMapping
-    public [[${Entity}]] create[[${Entity}]](@RequestBody   [[${Entity}]] [[${entity}]]) {
-        return [[${entityService}]].create[[${Entity}]]([[${entity}]]);
-    }
-
-    
-    @GetMapping
-    public List<[[${Entity}]]> getAll[[${Entity}]]s() {
-        return [[${entityService}]].getAll[[${Entity}]]s();
-    }
-
-    
-    @GetMapping("/{id}")
-    public Optional<[[${Entity}]]> get[[${Entity}]]ById(@PathVariable String id) {
-        return [[${entityService}]].get[[${Entity}]]ById(id);
-    }
-
-   
-    @PutMapping("/{id}")
-    public [[${Entity}]] update[[${Entity}]](@PathVariable String id, @RequestBody [[${Entity}]] [[${entity}]]) {
-        return [[${entityService}]].update[[${Entity}]](id, [[${entity}]]);
-    }
-
-  
-    @DeleteMapping("/{id}")
-    public void delete[[${Entity}]](@PathVariable String id) {
-        [[${entityService}]].delete[[${Entity}]](id);
-    }
+ [# th:each="Controller : ${Controllers}"]
+        [[${Controller}]]
+    [/]
 }

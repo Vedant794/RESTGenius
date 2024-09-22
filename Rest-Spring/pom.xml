@@ -11,7 +11,7 @@
 	<groupId>com.Api-Crafter</groupId>
 	<artifactId>Rest-Spring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>Rest-Spring</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>

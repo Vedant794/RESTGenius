@@ -2,10 +2,10 @@ package [[${Package}]].Repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import [[${Artifact}]].Model.[[${Schema_Name}]];
+import [[${Artifact}]].Model.[[${Entity}]];
 
 @Repository
-public interface [[${Schema_Name}]]Repository extends MongoRepository<[[${Schema_Name}]], [[${Type}]]> {
+public interface [[${Schema_Name}]]Repository extends MongoRepository<[[${Entity}]], String> {
   
   
 }

@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Schema {
 
-	String name;
+	String schema_name;
 	
-	String dbname;
+	String schema_dbname;
 	
 	List<Attribute>attributes;
 }

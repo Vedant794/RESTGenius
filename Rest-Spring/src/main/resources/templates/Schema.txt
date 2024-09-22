@@ -3,15 +3,15 @@ package com.example.demo.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
-@Document(collection = "[[${dbname}]]") 
-public class [[${name}]] {
-
-[# th:each="field : ${fields}" ]
-     [(${field.type})] [(${field.name})]; 
-     
+[# th:each="import : ${imports}"]  
+[[${import}]]
 [/]
+
+@Document(collection = "[[${schma_dbname}]]") 
+public class [[${Entity}]] {
+
+    [# th:each="field : ${fields}"]
+        [[${field.annotation}]]   
+        private [[${field.field}]];
+    [/]
 }
-
-
