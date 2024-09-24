@@ -6,11 +6,14 @@ import java.util.List;
 import org.apache.catalina.startup.CertificateCreateRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties.Template;
+import org.springframework.objenesis.instantiator.basic.NewInstanceInstantiator;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import com.Api_Crafter.Rest_Spring.DTO.Criteria;
+import com.Api_Crafter.Rest_Spring.DTO.Route;
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
 
 @Component
@@ -84,6 +87,7 @@ public final	SpringTemplateEngine templateEngine;
 	
  public	ServiceController Create(Schema schema) {
            context=new Context();
+           AdvanceRoutes advanceRoutes=new AdvanceRoutes(templateEngine);
            context.setVariable("Entity", schema.getSchema_name());
            context.setVariable("EntityRepository", schema.getSchema_name()+"Repository");
        
@@ -95,6 +99,13 @@ public final	SpringTemplateEngine templateEngine;
            
            List<String>serviceStrings=new ArrayList<String>();
            List<String>controllerList=new ArrayList<String>();
+           
+           if(schema.getRoutes()!=null && !schema.getRoutes().isEmpty()) {
+        	   for( Route it: schema.getRoutes()) {
+        		   serviceStrings.add(advanceRoutes.HandleAdvanceRoutes(it, schema.getSchema_name()).get(0));
+        	   }
+           }
+           
            
          ServiceController serviceController=generateSave();
          serviceStrings.add(serviceController.getService());
@@ -124,4 +135,6 @@ public final	SpringTemplateEngine templateEngine;
         return serviceController;
 	}
 	
+ 
+ 
 }

@@ -16,4 +16,6 @@ public class Schema {
 	String schema_dbname;
 	
 	List<Attribute>attributes;
+	
+	private List<Route> routes;
 }
