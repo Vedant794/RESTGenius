@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import modelLogo1 from '../assets/modelLogo3.png'
 import modelLogo2 from '../assets/modelLogo4.png'
+import ProjectDetails from './ProjectDetails'
 
 export default function GetStarted() {
   const [activeLink,setActiveLink]=useState("intro")
@@ -9,14 +10,15 @@ export default function GetStarted() {
   interface options{
     name:string,
     text:string,
-    content:string
+    content:JSX.Element
   }
   const customizeOptions:options[]=[
-    {name:"intro",text:"Introduction",content:"This is Intro Page"},
-    {name:"model",text:"Customize Schema",content:"This is Model Genration Page"},
-    {name:"controller",text:"Select Controllers",content:"This is Controller Selection"},
-    {name:"routes",text:"Customize Routes",content:"This is routes Customization"},
-    {name:"middlewares",text:"Choose Middlewares",content:"This is middleware selection page"}
+    {name:"intro",text:"Introduction",content:<></>},
+    {name:"project",text:"Project Details",content:<ProjectDetails mode={mode}/>},
+    {name:"model",text:"Customize Schema",content:<></>},
+    {name:"controller",text:"Select Controllers",content:<></>},
+    {name:"routes",text:"Customize Routes",content:<></>},
+    {name:"middlewares",text:"Choose Middlewares",content:<></>}
   ]
 
   const updateActiveLink=(id:string)=>{
@@ -53,11 +55,10 @@ export default function GetStarted() {
 
           <button className={`h-[3rem] w-[13rem] shadow-lg ${mode?'shadow-gray-600':'shadow-black'} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}>Generate</button>
         </aside>
-        <main className={`ml-[16vw] p-10 flex-1 ${mode?'bg-white':'bg-black'}`}>
+        <main className={`ml-[16vw] p-10 flex-1 ${mode?'bg-slate-50':'bg-[#202725]'} flex justify-center items-center`}>
             {
               customizeOptions.map(element=>(
                 <section key={element.name} className={`${activeLink===element.name? 'block' : "hidden"} ${mode?'text-black':'text-white'}`}>
-                  <h1 className='text-2xl font-bold mb-4'>{element.text}</h1>
                   <p>{element.content}</p>
                 </section>
               ))
