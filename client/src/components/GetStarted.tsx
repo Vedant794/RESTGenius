@@ -2,7 +2,7 @@ import {useState} from 'react'
 import modelLogo1 from '../assets/modelLogo3.png'
 import modelLogo2 from '../assets/modelLogo4.png'
 import ProjectDetails from './ProjectDetails'
-import SelectController from './SelectController'
+import {SelectController} from './SelectController'
 
 export default function GetStarted() {
   const [activeLink,setActiveLink]=useState("intro")
@@ -56,7 +56,7 @@ export default function GetStarted() {
 
           <button className={`h-[3rem] w-[13rem] shadow-lg ${mode?'shadow-gray-600':'shadow-black'} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}>Generate</button>
         </aside>
-        <main className={`ml-[16vw] p-10 flex-1 ${mode?'bg-slate-50':'bg-[#202725]'} flex justify-center items-center`}>
+        <main className={`h-auto ml-[16vw] p-10 flex-1 ${mode?'bg-slate-50':'bg-[#202725]'} flex justify-center items-center`}>
             {
               customizeOptions.map(element=>(
                 <section key={element.name} className={`${activeLink===element.name? 'block' : "hidden"} ${mode?'text-black':'text-white'}`}>

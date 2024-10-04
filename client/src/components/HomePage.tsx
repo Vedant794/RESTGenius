@@ -13,7 +13,7 @@ import modelLogo2 from '../assets/modelLogo2.png';
 import Footer from './Footer';
 import { useNavigate } from 'react-router-dom';
 import useLoader from './customHooks/useLoader'; // Custom hook for handling loader state
-import ClockLoader from 'react-spinners/ClockLoader';
+import DotLoader from 'react-spinners/DotLoader';
 
 const override: CSSProperties = {
   display: 'block',
@@ -115,11 +115,11 @@ export default function HomePage() {
               <div className="navigate">
                 {loading && (
                   <div className="fixed inset-0 bg-white bg-opacity-75 flex justify-center items-center z-50">
-                    <ClockLoader
+                    <DotLoader
                       color={color}
                       loading={loading}
                       cssOverride={override}
-                      size={100}
+                      size={50}
                       aria-label="Loading Spinner"
                       data-testid="loader"
                     />
