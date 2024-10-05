@@ -49,8 +49,8 @@ export default function ProjectDetails({ mode }: ComponentTheme) {
   };
 
   return (
-    <div>
-      <div className={`detailForm h-auto w-auto p-10 shadow-custom-heavy rounded-sm ${mode ? 'bg-white' : 'shadow-black'}`}>
+    <div className="flex justify-center items-center overflow-y-hidden">
+      <div className={`detailForm h-[80%] w-[40%] p-10 shadow-custom-heavy rounded-sm ${mode ? 'bg-white' : 'shadow-black'}`}>
         <form
           action=""
           className="projectForm flex flex-col justify-center"
