@@ -1,157 +1,460 @@
-// import React from 'react'
-import { useRef, useState } from "react";
-import { IoMdAdd } from "react-icons/io";
-import { IoMdTrash } from "react-icons/io";
+import { useState } from "react";
+import { IoMdAdd, IoMdTrash } from "react-icons/io";
+
 
 export default function CustomSchema() {
-  const [forms, setForms] = useState<number[]>([]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [showMoreOptions, setShowMoreOptions] = useState<number[]>([]);
+  const [schemas, setSchemas] = useState<any[]>([]);
 
   type Attribute = {
-    name: string;
-    type: string;
-    dbVarName: string;
+    var_name: string;
+    db_type: string;
+    var_dbname:string,
     isRequired: boolean;
-    isUnique: boolean;
-    isIndexed: boolean;
-    objectAttributes: Attribute[];
+    isSet: boolean;
+    isList: boolean;
+    isObject:boolean,
+    isDate:boolean,
+    isUUID:boolean,
+    isIndexed:boolean,
+    objectAttributes: Attribute[];  // For nested attributes
   };
 
-  interface schema {
-    schemaName: string;
-    varName: string;
-    userSelection: Array<String>;
-    attributes: Array<Attribute>;
-  }
-
-  // Add new form on button click
-  const handleAddForm = () => {
-    setForms([...forms, forms.length + 1]);
+  const handleAddSchema = () => {
+    setSchemas([
+      ...schemas,
+      {
+        schemaName: "",
+        varName: "",
+        attributes: [],
+      },
+    ]);
   };
 
-  // Remove form based on index
-  const handleRemoveForm = (index: number) => {
-    setForms(forms.filter((_, idx) => idx !== index));
+  const handleRemoveSchema = (index: number) => {
+    setSchemas(schemas.filter((_, idx) => idx !== index));
   };
 
-  const handleFocus = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+  const handleSchemaNameChange = (index: number, value: string) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[index].schemaName = value;
+    setSchemas(updatedSchemas);
   };
 
-  const handleToggleMoreOptions = (index: number) => {
-    setShowMoreOptions(prevState =>
-        prevState.includes(index)
-            ? prevState.filter(idx => idx !== index)
-            : [...prevState, index]
+  const handleVarNameChange = (index: number, value: string) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[index].varName = value;
+    setSchemas(updatedSchemas);
+  };
+
+  const handleAddAttribute = (index: number) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[index].attributes.push({
+      var_name: "",
+      db_type: "String",
+      var_dbname:"",
+      isRequired: false,
+      isSet: false,
+      isList: false,
+      isObject:false,
+      isDate:false,
+      isUUID:false,
+      isIndexed:false,
+      objectAttributes: [],
+    });
+    setSchemas(updatedSchemas);
+  };
+
+  const handleAttributeChange = (
+    schemaIndex: number,
+    attrIndex: number,
+    field: keyof Attribute,
+    value: any
+  ) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].attributes[attrIndex][field] = value;
+    setSchemas(updatedSchemas);
+  };
+
+  const handleAddNestedAttribute = (schemaIndex: number, attrIndex: number) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes.push({
+      var_name: "",
+      db_type: "String",
+      var_dbname:"",
+      isRequired: false,
+      isSet: false,
+      isList: false,
+      isObject:false,
+      isDate:false,
+      isUUID:false,
+      isIndexed:false,
+      objectAttributes: [],
+    });
+    setSchemas(updatedSchemas);
+  };
+
+  const handleRemoveAttribute = (schemaIndex: number, attrIndex: number) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].attributes = updatedSchemas[schemaIndex].attributes.filter(
+      (attribute: Attribute, idx: number) => idx !== attrIndex
     );
-};
-
-//   const handleIsUnique
-
-  const schemas: schema[] = [];
+    setSchemas(updatedSchemas);
+  };
   
-  return (
-    <>
-        <div className="schema">
-            <div className="add-name flex justify-between">
-                <input
-                    type="text"
-                    placeholder="Enter Schema Name"
-                    className="h-auto w-auto px-6 py-3 outline-none bg-white rounded-xl shadow-xl"
-                />
-                <button
-                    onClick={() => {
-                        handleAddForm();
-                        handleFocus();
-                    }}
-                    className="add flex justify-evenly items-center h-auto w-auto px-4 py-2 bg-green-500 text-white rounded-xl font-sans font-semibold text-xl shadow-xl transition duration-300 transform hover:scale-110"
-                >
-                    Add<IoMdAdd />
-                </button>
-            </div>
+  const handleRemoveNestedAttribute = (
+    schemaIndex: number,
+    attrIndex: number,
+    nestedIndex: number
+  ) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes =
+      updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes.filter(
+        (nestedAttribute: Attribute, idx: number) => idx !== nestedIndex
+      );
+    setSchemas(updatedSchemas);
+  };
+  
 
-            <div className="form-section">
-                {forms.map((form, index) => (
-                    <div
-                        key={index}
-                        className="form-item flex flex-col my-4 p-4 bg-slate-100 text-black rounded-md shadow-lg"
-                    >
-                        <div className="flex justify-evenly items-center">
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                placeholder="Enter Field Name"
-                                className="input-field bg-white p-2 rounded-md text-black focus:outline-none shadow-lg"
-                            />
-                            <select className="input-field bg-white p-2 rounded-md text-black focus:outline-none cursor-pointer shadow-lg">
-                                <option value="String">String</option>
-                                <option value="Number">Number</option>
-                                <option value="Boolean">Boolean</option>
-                                <option value="Object">Object</option>
-                            </select>
-                            <div className="flex items-center">
-                                <span className="mr-2">Required</span>
-                                <input type="checkbox" className="toggle-checkbox cursor-pointer" />
-                            </div>
-                            <button
-                                onClick={() => handleToggleMoreOptions(index)}
-                                className="bg-white p-2 rounded-md text-black shadow-lg"
-                            >
-                                Select more Option
-                            </button>
-                            <button
-                                onClick={() => handleRemoveForm(index)}
-                                className="delete-button text-red-500 p-2"
-                            >
-                                <IoMdTrash size={24} />
-                            </button>
+  const handleNestedAttributeChange = (
+    schemaIndex: number,
+    attrIndex: number,
+    nestedIndex: number,
+    field: keyof Attribute,
+    value: any
+  ) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes[
+      nestedIndex
+    ][field] = value;
+    setSchemas(updatedSchemas);
+  };
+
+  // console.log(schemas)
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Create Your Custom Schema</h1>
+
+      <button
+        onClick={handleAddSchema}
+        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded-md"
+      >
+        Add New Schema
+      </button>
+
+      {schemas.map((schema, schemaIndex) => (
+        <div
+          key={schemaIndex}
+          className="schema-section bg-gray-100 p-4 mb-6 rounded-md shadow-md"
+        >
+          <input
+            type="text"
+            placeholder="Schema Name"
+            value={schema.schemaName}
+            onChange={(e) =>
+              handleSchemaNameChange(schemaIndex, e.target.value)
+            }
+            className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+          />
+          <input
+            type="text"
+            placeholder="Variable Name"
+            value={schema.varName}
+            onChange={(e) => handleVarNameChange(schemaIndex, e.target.value)}
+            className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+          />
+
+          <button
+            onClick={() => handleAddAttribute(schemaIndex)}
+            className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 mb-4 rounded-md"
+          >
+            Add Field <IoMdAdd />
+          </button>
+
+          {schema.attributes.map((attribute: Attribute, attrIndex: number) => (
+            <div
+              key={attrIndex}
+              className="attribute-section bg-white p-4 mb-4 rounded-md shadow-md"
+            >
+              <input
+                type="text"
+                placeholder="Variable Name"
+                value={attribute.var_name}
+                onChange={(e) =>
+                  handleAttributeChange(schemaIndex, attrIndex, "var_name", e.target.value)
+                }
+                className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+              />
+
+              <select
+                value={attribute.db_type}
+                onChange={(e) =>
+                  handleAttributeChange(schemaIndex, attrIndex, "db_type", e.target.value)
+                }
+                className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+              >
+                <option value="String">String</option>
+                <option value="Number">Number</option>
+                <option value="Boolean">Boolean</option>
+                <option value="Array">Array</option>
+                <option value="Object">Object</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="Variable Database Name"
+                value={attribute.var_dbname}
+                onChange={(e) =>
+                  handleAttributeChange(schemaIndex, attrIndex, "var_dbname", e.target.value)
+                }
+                className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+              />
+
+              <div className="flex justify-evenly items-center mb-2">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isRequired}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isRequired", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Required</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isSet}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isSet", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Set</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isList}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isList", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">List</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isObject}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isObject", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Object</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isDate}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isDate", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Date</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isUUID}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isUUID", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">UUID</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={attribute.isIndexed}
+                    onChange={(e) =>
+                      handleAttributeChange(schemaIndex, attrIndex, "isIndexed", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Indexed</span>
+                </label>
+              </div>
+
+              {attribute.db_type === "Object" && (
+                <div className="nested-section">
+                  <h4 className="font-bold mb-2">Nested Attributes</h4>
+                  <button
+                    onClick={() => handleAddNestedAttribute(schemaIndex, attrIndex)}
+                    className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 rounded-md mb-2"
+                  >
+                    Add Nested Field <IoMdAdd />
+                  </button>
+
+                  {attribute.objectAttributes.map(
+                    (nestedAttr, nestedIndex: number) => (
+                      <div
+                        key={nestedIndex}
+                        className="nested-attribute bg-gray-200 p-2 mb-2 mt-4 rounded-md"
+                      >
+                        <input
+                          type="text"
+                          placeholder="Variable Name"
+                          value={nestedAttr.var_name}
+                          onChange={(e) =>
+                            handleNestedAttributeChange(
+                              schemaIndex,
+                              attrIndex,
+                              nestedIndex,
+                              "var_name",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-2 py-1 mb-2 rounded-md shadow-md"
+                        />
+                        <select
+                          value={nestedAttr.db_type}
+                          onChange={(e) =>
+                            handleNestedAttributeChange(
+                              schemaIndex,
+                              attrIndex,
+                              nestedIndex,
+                              "db_type",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-2 py-1 mb-2 rounded-md shadow-md"
+                        >
+                          <option value="String">String</option>
+                          <option value="Number">Number</option>
+                          <option value="Boolean">Boolean</option>
+                          <option value="Array">Array</option>
+                          <option value="Object">Object</option>
+                        </select>
+                        <input
+                          type="text"
+                          placeholder="Variable Dataset Name"
+                          value={nestedAttr.var_dbname}
+                          onChange={(e) =>
+                            handleNestedAttributeChange(
+                              schemaIndex,
+                              attrIndex,
+                              nestedIndex,
+                              "var_dbname",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-2 py-1 mb-2 rounded-md shadow-md"
+                        />
+
+
+                        <div className="flex justify-evenly items-center mb-2">
+                        <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isRequired}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isRequired", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Required</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isSet}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isSet", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Set</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isList}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isList", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">List</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isObject}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isObject", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Object</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isDate}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isDate", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Date</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isUUID}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isUUID", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">UUID</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={nestedAttr.isIndexed}
+                    onChange={(e) =>
+                      handleNestedAttributeChange(schemaIndex, attrIndex, nestedIndex, "isIndexed", e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Indexed</span>
+                </label>
                         </div>
 
-                        {showMoreOptions.includes(index) && (
-                            <div className="more-options mt-4 p-4 bg-gray-200 rounded-md">
-                                <div className="flex flex-col">
-                                    <label className="flex items-center">
-                                        <input type="checkbox" className="mr-2" />
-                                        isUnique
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input type="checkbox" className="mr-2" />
-                                        isIndexed
-                                    </label>
-                                    <div className="flex items-center mt-2">
-                                        <label className="mr-2">Min Value:</label>
-                                        <input
-                                            type="number"
-                                            placeholder="Min"
-                                            className="input-field bg-white p-2 rounded-md text-black focus:outline-none"
-                                        />
-                                    </div>
-                                    <div className="flex items-center mt-2">
-                                        <label className="mr-2">Max Value:</label>
-                                        <input
-                                            type="number"
-                                            placeholder="Max"
-                                            className="input-field bg-white p-2 rounded-md text-black focus:outline-none"
-                                        />
-                                    </div>
-                                    <div className="flex items-center mt-2">
-                                        <label className="mr-2">Default Value:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Default Value"
-                                            className="input-field bg-white p-2 rounded-md text-black focus:outline-none"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                        <button
+                          onClick={() =>
+                            handleRemoveNestedAttribute(schemaIndex, attrIndex, nestedIndex)
+                          }
+                          className="h-auto w-auto flex justify-evenly items-center text-lg font-medium bg-red-500 text-white px-2 py-1 rounded-md"
+                        >
+                          Delete Nested Field <IoMdTrash />
+                        </button>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+
+              <button
+                onClick={() => handleRemoveAttribute(schemaIndex, attrIndex)}
+                className="h-auto w-auto flex justify-evenly items-center text-lg font-medium bg-red-500 text-white px-2 py-1 rounded-md"
+              >
+                Delete Field <IoMdTrash />
+              </button>
             </div>
+          ))}
+
+          <button
+            onClick={() => handleRemoveSchema(schemaIndex)}
+            className="h-auto w-auto text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
+          >
+            Remove Schema
+          </button>
         </div>
-    </>
-);
+      ))}
+    </div>
+  );
 }
+
