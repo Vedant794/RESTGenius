@@ -1,18 +1,22 @@
 package com.Api_Crafter.Rest_Spring.DTO;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @Builder
-public class ProjectDetails {
+public class Relation {
+
+	String schema;
 	
-	String projectName;
+	String target;
+
+	boolean lazyLoad;
 	
-List<Schema>schemas;
+	String type;
+	
+	boolean cascadeDelete;
+	
 }

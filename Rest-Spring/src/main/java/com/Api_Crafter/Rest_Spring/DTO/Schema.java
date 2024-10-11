@@ -18,4 +18,6 @@ public class Schema {
 	List<Attribute>attributes;
 	
 	private List<Route> routes;
+	
+	List<Relation>relations;
 }
