@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { IoMdAdd, IoMdTrash } from "react-icons/io";
+import useTheme from "./context/ModeContext";
 
 
 export default function CustomSchema() {
   const [schemas, setSchemas] = useState<any[]>([]);
+  const {mode} = useTheme()
 
   type Attribute = {
     var_name: string;
@@ -137,7 +139,7 @@ export default function CustomSchema() {
 
       <button
         onClick={handleAddSchema}
-        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded-md"
+        className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
       >
         Add New Schema
       </button>
@@ -145,7 +147,7 @@ export default function CustomSchema() {
       {schemas.map((schema, schemaIndex) => (
         <div
           key={schemaIndex}
-          className="schema-section bg-gray-100 p-4 mb-6 rounded-md shadow-md"
+          className={`schema-section shadow-custom-heavy ${mode?'bg-gray-100':'bg-[#202725] shadow-black'} p-4 mb-6 rounded-md`}
         >
           <input
             type="text"
@@ -154,19 +156,19 @@ export default function CustomSchema() {
             onChange={(e) =>
               handleSchemaNameChange(schemaIndex, e.target.value)
             }
-            className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+          className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
           />
           <input
             type="text"
             placeholder="Variable Name"
             value={schema.varName}
             onChange={(e) => handleVarNameChange(schemaIndex, e.target.value)}
-            className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+            className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
           />
 
           <button
             onClick={() => handleAddAttribute(schemaIndex)}
-            className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 mb-4 rounded-md"
+            className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 mb-4 mt-2 rounded-md"
           >
             Add Field <IoMdAdd />
           </button>
@@ -174,7 +176,7 @@ export default function CustomSchema() {
           {schema.attributes.map((attribute: Attribute, attrIndex: number) => (
             <div
               key={attrIndex}
-              className="attribute-section bg-white p-4 mb-4 rounded-md shadow-md"
+              className={`attribute-section ${mode?'bg-white':'bg-[#202725] shadow-black'} p-4 mb-4 rounded-md shadow-xl`}
             >
               <input
                 type="text"
@@ -183,7 +185,7 @@ export default function CustomSchema() {
                 onChange={(e) =>
                   handleAttributeChange(schemaIndex, attrIndex, "var_name", e.target.value)
                 }
-                className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+                className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
               />
 
               <select
@@ -191,7 +193,7 @@ export default function CustomSchema() {
                 onChange={(e) =>
                   handleAttributeChange(schemaIndex, attrIndex, "db_type", e.target.value)
                 }
-                className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+                className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
               >
                 <option value="String">String</option>
                 <option value="Number">Number</option>
@@ -207,11 +209,11 @@ export default function CustomSchema() {
                 onChange={(e) =>
                   handleAttributeChange(schemaIndex, attrIndex, "var_dbname", e.target.value)
                 }
-                className="w-full px-4 py-2 mb-2 rounded-md shadow-md"
+                className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
               />
 
               <div className="flex justify-evenly items-center mb-2">
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isRequired}
@@ -221,7 +223,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Required</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isSet}
@@ -231,7 +233,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Set</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isList}
@@ -241,7 +243,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">List</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isObject}
@@ -251,7 +253,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Object</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isDate}
@@ -261,7 +263,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Date</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isUUID}
@@ -271,7 +273,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">UUID</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attribute.isIndexed}
@@ -297,7 +299,7 @@ export default function CustomSchema() {
                     (nestedAttr, nestedIndex: number) => (
                       <div
                         key={nestedIndex}
-                        className="nested-attribute bg-gray-200 p-2 mb-2 mt-4 rounded-md"
+                        className={`nested-attribute shadow-xl ${mode?'bg-gray-200':'bg-[#202725] shadow-black'} p-2 mb-2 mt-4 rounded-md`}
                       >
                         <input
                           type="text"
@@ -312,7 +314,7 @@ export default function CustomSchema() {
                               e.target.value
                             )
                           }
-                          className="w-full px-2 py-1 mb-2 rounded-md shadow-md"
+                          className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
                         />
                         <select
                           value={nestedAttr.db_type}
@@ -325,7 +327,7 @@ export default function CustomSchema() {
                               e.target.value
                             )
                           }
-                          className="w-full px-2 py-1 mb-2 rounded-md shadow-md"
+                          className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
                         >
                           <option value="String">String</option>
                           <option value="Number">Number</option>
@@ -346,12 +348,12 @@ export default function CustomSchema() {
                               e.target.value
                             )
                           }
-                          className="w-full px-2 py-1 mb-2 rounded-md shadow-md"
+                          className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
                         />
 
 
                         <div className="flex justify-evenly items-center mb-2">
-                        <label className="flex items-center">
+                        <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isRequired}
@@ -361,7 +363,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Required</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isSet}
@@ -371,7 +373,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Set</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isList}
@@ -381,7 +383,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">List</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isObject}
@@ -391,7 +393,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Object</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isDate}
@@ -401,7 +403,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">Date</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isUUID}
@@ -411,7 +413,7 @@ export default function CustomSchema() {
                   />
                   <span className="ml-2">UUID</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={nestedAttr.isIndexed}
@@ -439,7 +441,7 @@ export default function CustomSchema() {
 
               <button
                 onClick={() => handleRemoveAttribute(schemaIndex, attrIndex)}
-                className="h-auto w-auto flex justify-evenly items-center text-lg font-medium bg-red-500 text-white px-2 py-1 rounded-md"
+                className="h-auto w-auto flex justify-evenly items-center mt-4 text-lg font-medium bg-red-500 text-white px-2 py-1 rounded-md"
               >
                 Delete Field <IoMdTrash />
               </button>

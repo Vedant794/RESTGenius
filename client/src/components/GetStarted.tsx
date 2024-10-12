@@ -2,37 +2,71 @@ import { useState } from 'react';
 import modelLogo1 from '../assets/modelLogo3.png';
 import modelLogo2 from '../assets/modelLogo4.png';
 import ProjectDetails from './ProjectDetails';
-import { SelectController } from './SelectController';
 import CustomSchema from './CustomSchema';
+import { ThemeProvider } from './context/ModeContext';
+import { Link } from 'react-router-dom';
 
 export default function GetStarted() {
   const [activeLink, setActiveLink] = useState("intro");
   const [mode, setMode] = useState(true);
 
-  interface options {
-    name: string,
-    text: string,
-    content: JSX.Element
+  interface Options {
+    name: string;
+    text: string;
+    content: JSX.Element;
+    link: string;
   }
-  const customizeOptions: options[] = [
-    { name: "intro", text: "Introduction", content: <></> },
-    { name: "project", text: "Project Details", content: <ProjectDetails mode={mode} /> },
-    { name: "controller", text: "Select Controllers", content: <SelectController /> },
-    { name: "model", text: "Customize Schema", content: <CustomSchema /> },
-    { name: "routes", text: "Customize Routes", content: <></> },
-    { name: "middlewares", text: "Choose Middlewares", content: <></> }
+  
+  const customizeOptions: Options[] = [
+    { 
+      name: "intro", 
+      text: "Introduction", 
+      content: <></>, 
+      link: "/getstarted"
+    },
+    { 
+      name: "project", 
+      text: "Project Details", 
+      content: <ProjectDetails />, 
+      link: "/getstarted/projectDetails"
+    },
+    { 
+      name: "model", 
+      text: "Customize Schema", 
+      content: <CustomSchema />, 
+      link: "/getstarted/customSchema" 
+    },
+    { 
+      name: "routes", 
+      text: "Customize Routes", 
+      content: <></>, 
+      link: "/" 
+    },
   ];
 
   const updateActiveLink = (id: string) => {
     setActiveLink(id);
   };
 
+  const darkTheme=()=>{
+    setMode(!mode)
+  }
+
+  const lightTheme=()=>{
+    setMode(!mode)
+  }
+  
   const changeMode = () => {
-    setMode(!mode);
+    if(mode){
+      lightTheme()
+    }
+    else{
+      darkTheme()
+    }
   };
 
   return (
-    <>
+    <ThemeProvider value={{mode,darkTheme,lightTheme}}>
       <div className="h-screen flex flex-col">
         <header className={`navigation-bar ${mode ? 'bg-slate-100' : 'bg-[#323939]'} h-[13vh] flex justify-between items-center fixed top-0 z-10 w-full`}>
           <div className="logo"><img src={`${mode ? modelLogo2 : modelLogo1}`} alt="Model Logo" className='h-[60px] w-auto bg-cover' /></div>
@@ -64,14 +98,14 @@ export default function GetStarted() {
           <main className={`h-full ml-[16vw] p-10 flex-1 ${mode ? 'bg-slate-50' : 'bg-[#202725]'}`}>
             {
               customizeOptions.map(element => (
-                <section key={element.name} className={`${activeLink === element.name ? 'block' : 'hidden'} ${mode ? 'text-black' : 'text-white'}`}>
-                  {element.content}
-                </section>
+                  <section key={element.name} className={`${activeLink === element.name ? 'block' : 'hidden'} ${mode ? 'text-black' : 'text-white'}`}>
+                    {element.content}
+                  </section>
               ))
             }
           </main>
         </div>
       </div>
-    </>
+    </ThemeProvider>
   );
 }
