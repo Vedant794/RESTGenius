@@ -1,14 +1,12 @@
 import React, { useState } from "react";
+import useTheme from "./context/ModeContext";
 
-interface ComponentTheme {
-  mode: boolean;
-}
-
-export default function ProjectDetails({ mode }: ComponentTheme) {
+export default function ProjectDetails() {
   const [selectOrm, setSelectOrm] = useState("");
   const [projectName, setProjectName] = useState("");
   const [mongoUri, setMongoUri] = useState("");
   const [port, setPort] = useState<number | undefined>(undefined);
+  const {mode} =useTheme()
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectOrm(event.target.value);
