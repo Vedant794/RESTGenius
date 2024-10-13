@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoMdAdd, IoMdTrash } from "react-icons/io";
 import useTheme from "./context/ModeContext";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import { schemaContext } from "./context/schemaContext";
 
 
 export default function CustomSchema() {
   const [schemas, setSchemas] = useState<any[]>([]);
   const {mode} = useTheme()
+  const navigate=useNavigate()
 
   type Attribute = {
     var_name: string;
@@ -21,13 +25,26 @@ export default function CustomSchema() {
     objectAttributes: Attribute[];  // For nested attributes
   };
 
+  useEffect(() => {
+    const savedSchemas = sessionStorage.getItem("schemas");
+    if (savedSchemas) {
+      setSchemas(JSON.parse(savedSchemas));
+    }
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("schemas", JSON.stringify(schemas));
+  }, [schemas]);
+
   const handleAddSchema = () => {
     setSchemas([
       ...schemas,
       {
-        schemaName: "",
-        varName: "",
+        schema_name: "",
+        schema_dbname: "",
         attributes: [],
+        routes:[],
+        relations:[]
       },
     ]);
   };
@@ -38,13 +55,13 @@ export default function CustomSchema() {
 
   const handleSchemaNameChange = (index: number, value: string) => {
     const updatedSchemas = [...schemas];
-    updatedSchemas[index].schemaName = value;
+    updatedSchemas[index].schema_name = value;
     setSchemas(updatedSchemas);
   };
 
-  const handleVarNameChange = (index: number, value: string) => {
+  const handleDBNameChange = (index: number, value: string) => {
     const updatedSchemas = [...schemas];
-    updatedSchemas[index].varName = value;
+    updatedSchemas[index].schema_dbname = value;
     setSchemas(updatedSchemas);
   };
 
@@ -131,10 +148,29 @@ export default function CustomSchema() {
     setSchemas(updatedSchemas);
   };
 
+  const handleNavigation=()=>{
+    navigate('/getstarted/customSchema/routes')
+  }
+
+  const handleAddRoutes = (schemaIndex: number, route: string) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].routes.push(route);
+    setSchemas(updatedSchemas);
+  };
+
+  // Update relations for a schema
+  const handleAddRelation = (schemaIndex: number, relation: string) => {
+    const updatedSchemas = [...schemas];
+    updatedSchemas[schemaIndex].relations.push(relation);
+    setSchemas(updatedSchemas);
+  };
+
   // console.log(schemas)
 
   return (
-    <div className="container mx-auto p-4">
+    <schemaContext.Provider value={{schemas,setSchemas}}>
+    <Navbar/>
+    <div className="container mx-auto my-[13vh] p-4">
       <h1 className="text-2xl font-bold mb-4">Create Your Custom Schema</h1>
 
       <button
@@ -152,7 +188,7 @@ export default function CustomSchema() {
           <input
             type="text"
             placeholder="Schema Name"
-            value={schema.schemaName}
+            value={schema.schema_name}
             onChange={(e) =>
               handleSchemaNameChange(schemaIndex, e.target.value)
             }
@@ -160,9 +196,9 @@ export default function CustomSchema() {
           />
           <input
             type="text"
-            placeholder="Variable Name"
-            value={schema.varName}
-            onChange={(e) => handleVarNameChange(schemaIndex, e.target.value)}
+            placeholder="Database Name"
+            value={schema.schema_dbname}
+            onChange={(e) => handleDBNameChange(schemaIndex, e.target.value)}
             className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
           />
 
@@ -447,16 +483,24 @@ export default function CustomSchema() {
               </button>
             </div>
           ))}
-
+          <div className="routesDel flex justify-between items-center">
           <button
             onClick={() => handleRemoveSchema(schemaIndex)}
             className="h-auto w-auto text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
           >
             Remove Schema
           </button>
+          <button
+           onClick={handleNavigation}
+           className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+          >
+            Create Routes
+          </button>
+          </div>
         </div>
       ))}
     </div>
+    </schemaContext.Provider>
   );
 }
 

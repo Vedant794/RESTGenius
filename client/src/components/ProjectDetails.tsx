@@ -1,12 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useTheme from "./context/ModeContext";
+import { useNavigate } from "react-router-dom";
 
 export default function ProjectDetails() {
   const [selectOrm, setSelectOrm] = useState("");
   const [projectName, setProjectName] = useState("");
   const [mongoUri, setMongoUri] = useState("");
   const [port, setPort] = useState<number | undefined>(undefined);
+  const navigate=useNavigate()
   const {mode} =useTheme()
+
+  useEffect(() => {
+    const storedData = sessionStorage.getItem("formData");
+    if (storedData) {
+      const { projectName, selectOrm, mongoUri, port } = JSON.parse(storedData);
+      setProjectName(projectName || "");
+      setSelectOrm(selectOrm || "");
+      setMongoUri(mongoUri || "");
+      setPort(port);
+    }
+  }, []);
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectOrm(event.target.value);
@@ -31,6 +44,11 @@ export default function ProjectDetails() {
     port?: number;
   }
 
+  const handleSchemaNavigation = () => {
+    saveFormData();
+    navigate('/getstarted/customSchema');
+  };
+
   const saveFormData = () => {
     const userInput: Details = {
       projectName,
@@ -38,7 +56,6 @@ export default function ProjectDetails() {
       mongoUri,
       port
     };
-
     // Store the data in sessionStorage
     sessionStorage.setItem("formData", JSON.stringify(userInput));
 
@@ -54,7 +71,7 @@ export default function ProjectDetails() {
           className="projectForm flex flex-col justify-center"
           onSubmit={(e) => {
             e.preventDefault();
-            saveFormData();
+            handleSchemaNavigation();
           }}
         >
           <div className="name flex flex-col justify-center">
