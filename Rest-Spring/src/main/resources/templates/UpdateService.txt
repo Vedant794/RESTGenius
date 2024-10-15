@@ -1,8 +1,0 @@
-public [[${Entity}]] update[[${Entity}]] (String id, [[${Entity}]]  new[[${Entity}]] ) {
-				        if ([[${entityRepository}]].existsById(id)) {
-				            new[[${Entity}]] .setId(id); 
-				         return [[${entityRepository}]].save(new[[${Entity}]] );
-				      } else {
-				          throw new RuntimeException(\"[[${Entity}]]  not found\");
-				     }
-			    }

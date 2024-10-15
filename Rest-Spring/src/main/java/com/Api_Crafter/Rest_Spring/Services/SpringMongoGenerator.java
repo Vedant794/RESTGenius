@@ -42,19 +42,17 @@ this.templateEngine=templateEngine;
 		Map<String, Schema> schemaMaps = Helper.schemaMap(projectDetails);
 
 		CrudCordinator crudCordinator=new CrudCordinator(templateEngine,schemaMaps);
-		crudCordinator.execute(projectDetails.getSchemas().get(0));
+	
 		
 		
 		
-		SaveGeneration saveGeneration = new SaveGeneration();
-		saveGeneration.execute(schemaMaps, projectDetails.getSchemas().get(0));
-		FindByIdGeneration findByIdGeneration=new FindByIdGeneration();
-		findByIdGeneration.execute(schemaMaps, projectDetails.getSchemas().get(0));
-		DeleteGeneration deleteGeneration=new DeleteGeneration();
-		deleteGeneration.execute(schemaMaps, projectDetails.getSchemas().get(0));
 
 		List<String> entityList = new ArrayList<>();
 		OutputDTO outputDTO = new OutputDTO();
+		List<String> serviceList = new ArrayList<String>();
+		List<String> controllerList = new ArrayList<String>();
+
+		
 		for (Schema sc : projectDetails.getSchemas()) {
 			EntityDTO entityDTO = entityHandler.handleEntity(sc);
 			entityList.add(entityDTO.getEntity_code());
@@ -65,12 +63,14 @@ this.templateEngine=templateEngine;
 			repoList.add(repositoryGenerator.handleRepository(sc));
 			outputDTO.setRepoFiles(repoList);
 
-			List<String> serviceList = new ArrayList<String>();
-			List<String> controllerList = new ArrayList<String>();
-
-			outputDTO.setControllerFiles(controllerList);
-			outputDTO.setServiceFiles(serviceList);
+			ServiceController serviceController=crudCordinator.execute(sc);
+			serviceList.add(serviceController.getService());
+			controllerList.add(serviceController.getController());
+			
 		}
+
+		outputDTO.setControllerFiles(controllerList);
+		outputDTO.setServiceFiles(serviceList);
 
 		return outputDTO;
 	}

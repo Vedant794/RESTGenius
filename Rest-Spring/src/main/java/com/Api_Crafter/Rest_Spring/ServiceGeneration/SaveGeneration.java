@@ -4,103 +4,229 @@ import java.util.*;
 
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.RepositoryGenerator;
+import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
+import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 import com.Api_Crafter.Rest_Spring.DTO.Relation;
 
 public class SaveGeneration implements CrudCommand {
 
-    @Override
-    public String execute(Map<String, Schema> schemaMap, Schema schema) {
-        
-        // Initializing the queue for BFS
-        Queue<SchemaLevel> queue = new LinkedList<>();
-        SchemaLevel schemaLevel = new SchemaLevel(schema, 0);
-        queue.add(schemaLevel);
+	public final ImportUtils importUtils;
 
-        // Function parameters set
-        Set<String> fnParams = new HashSet<>();
-        fnParams.add(schema.getSchema_name());
+	public SaveGeneration(ImportUtils importUtils) {
+		this.importUtils = importUtils;
+	}
 
-        // Result is stored here
-        List<String> saveStrings = new ArrayList<>();
+	@Override
+	public ServiceController execute(Map<String, Schema> schemaMap, Schema schema) {
 
-        // Applying BFS
-        while (!queue.isEmpty()) {
-            SchemaLevel temp = queue.poll();
+		// camelcase schema name
+		String lowercaseParent = schema.getSchema_name().substring(0, 1).toLowerCase()
+				+ schema.getSchema_name().substring(1);
 
-            if (temp.getSchmea().getRelations() != null) {
-                for (Relation relation : temp.getSchmea().getRelations()) {
-                    Schema relatedSchema = schemaMap.get(relation.getTarget());
+		// Initializing the queue for BFS
+		Queue<SchemaLevel> queue = new LinkedList<>();
+		SchemaLevel schemaLevel = new SchemaLevel(schema, 0);
+		queue.add(schemaLevel);
 
-                    // Adding it to function parameters
-                    String nameString = relatedSchema.getSchema_name();
-                    fnParams.add(nameString.substring(0, 1).toLowerCase() + nameString.substring(1));
+		// Function parameters set
+		Set<String> fnParams = new HashSet<>();
+		fnParams.add(schema.getSchema_name() + " " + schema.getSchema_name().substring(0, 1).toLowerCase()
+				+ schema.getSchema_name().substring(1));
 
-                    if (relation.getType().equals("OneToOne")) {
-                        saveStrings.add(handleOneToOneString(relatedSchema.getSchema_name(), temp.getSchmea().getSchema_name()));
-                    } else {
-                        saveStrings.add(handleOneToMany(temp.getSchmea().getSchema_name(), relatedSchema.getSchema_name(), "List<>"));
-                    }
-                    queue.add(new SchemaLevel(relatedSchema, temp.getLevel() + 1));
-                }
-            }
-        }
+		// Result is stored here
+		List<String> saveStrings = new ArrayList<>();
 
-        // Building the template string
-        StringBuilder template = new StringBuilder();
-        template.append(schema.getSchema_name()).append(" Save").append(schema.getSchema_name()).append("(");
+		// Applying BFS
+		while (!queue.isEmpty()) {
+			SchemaLevel temp = queue.poll();
 
-        fnParams.forEach(it -> template.append(", ").append(it).append(" ").append(it.substring(0, 1).toLowerCase()).append(it.substring(1)));
-        template.append(") {\n");
+			if (temp.getSchmea().getRelations() != null) {
+				for (Relation relation : temp.getSchmea().getRelations()) {
+					Schema relatedSchema = schemaMap.get(relation.getTarget());
 
-        Collections.reverse(saveStrings);
+					importUtils.getServiceAutowire()
+							.add(relatedSchema.getSchema_name() + "Repository "
+									+ relatedSchema.getSchema_name().substring(0, 1).toLowerCase()
+									+ relatedSchema.getSchema_name().substring(1) + "Repository");
 
-        saveStrings.forEach(it -> template.append(it));
-        template.append("return ").append(schema.getSchema_name()).append("Repository.save();");
-        template.append("\n}");
+					// Adding it to function parameters
+					String nameString = relatedSchema.getSchema_name();
+					String smallnameString = nameString.substring(0, 1).toLowerCase() + nameString.substring(1);
 
-        //System.out.println(template);
-        return template.toString();
-    }
+					// for one to one case
+					if (relation.getType().equals("OneToOne")) {
+						saveStrings.add(handleOneToOneString(relatedSchema.getSchema_name(),
+								temp.getSchmea().getSchema_name()));
+						// adding the paremeter --> Entity entity
+						fnParams.add(nameString + " " + smallnameString);
+					} else {
+						saveStrings.add(
+								handleOneToMany(temp.getSchmea().getSchema_name(), relatedSchema.getSchema_name()));
+						// adding the parameter --> List<Entity>entitis
+						fnParams.add("List<" + nameString + ">" + smallnameString + "s");
+					}
+					queue.add(new SchemaLevel(relatedSchema, temp.getLevel() + 1));
+				}
+			}
+		}
 
-    // Handling OneToOne relation
-    public String handleOneToOneString(String entity, String parent) {
-        // Lowercase entity name
-        String lowerEntity = entity.substring(0, 1).toLowerCase() + entity.substring(1);
+		// Building the template string
+		StringBuilder template = new StringBuilder();
 
-        StringBuilder template = new StringBuilder();
-        template.append("new").append(lowerEntity).append(" = ").append(lowerEntity).append("Repository.save(").append(lowerEntity).append(");\n");
-        template.append(parent).append(".set").append(entity).append("Id(new").append(lowerEntity).append(".getId());\n");
+		// adding-->> Entity saveEntity(
+		template.append(schema.getSchema_name()).append(" save").append(schema.getSchema_name()).append("(");
 
-        return template.toString();
-    }
+		// parameters set --> Entity entity ,
+		fnParams.forEach(it -> template.append(it + ","));
+		// removing the extra ,
+		template.deleteCharAt(template.length() - 1);
+		// line break and start of {
+		template.append(") {\n");
 
+		// reversing the strings to get the correct order
+		Collections.reverse(saveStrings);
 
-    // Handling OneToMany relation
-    public String handleOneToMany(String parentEntity, String childEntity, String childCollectionName) {
-        // Lowercase entity names
-        String lowerParentEntity = parentEntity.substring(0, 1).toLowerCase() + parentEntity.substring(1);
-        String lowerChildEntity = childEntity.substring(0, 1).toLowerCase() + childEntity.substring(1);
+		// appending the collection to ans string
+		saveStrings.forEach(it -> template.append(it));
 
-        StringBuilder template = new StringBuilder();
+		// adding--> return entityRepository.save(entity); }
+		template.append("return ")
+				.append(schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1))
+				.append("Repository.save(" + lowercaseParent + ");");
+		template.append("\n}");
 
-        // Iterate through the collection of child entities
-        template.append("\nfor (").append(childEntity).append(" ").append(lowerChildEntity).append(" : ")
-                .append(lowerParentEntity).append(".get").append(childCollectionName).append("()) {\n");
-        
-        // Set the parent reference in each child entity
-        template.append("    ").append(lowerChildEntity).append(".set").append(parentEntity).append("(")
-                .append(lowerParentEntity).append(");\n");
+		// creating the desired controller for the save String
+		String controller = handleSaveController(schema.getSchema_name(), fnParams.stream().toList());
+            controller.replace("&lt;", "<").replace("&gt;", ">");
+		
+		// replacing the &lt with < and &gt with >
+		String serviceString = template.toString();
+		serviceString = serviceString.replace("&lt;", "<").replace("&gt;", ">");
 
-        // Save each child entity
-        template.append("    ").append(lowerChildEntity).append("Repository.save(").append(lowerChildEntity).append(");\n");
+		// debuging
+		// System.out.println(template);
 
-        template.append("}\n");
+		return new ServiceController(serviceString, controller);
+	}
 
-        return template.toString();
-    }
+	// Handling OneToOne relation
+	public String handleOneToOneString(String entity, String parent) {
+		// Lowercase entity name
+		String lowerEntity = entity.substring(0, 1).toLowerCase() + entity.substring(1);
+		String smallparent = parent.substring(0, 1).toLowerCase() + parent.substring(1);
 
-    // Placeholder for ManyToMany relation
-    public String handleManyToMany() {
-        return null;
-    }
+		StringBuilder template = new StringBuilder();
+		template.append(entity + " new").append(lowerEntity).append(" = ").append(lowerEntity)
+				.append("Repository.save(").append(lowerEntity).append(");\n");
+		template.append(smallparent).append(".set").append(entity).append("Id(new").append(lowerEntity)
+				.append(".getId());\n");
+
+		return template.toString();
+	}
+
+	// Handling OneToMany relation
+	public String handleOneToMany(String parentEntity, String childEntity) {
+		// Lowercase entity names
+		String lowerParentEntity = parentEntity.substring(0, 1).toLowerCase() + parentEntity.substring(1);
+		String lowerChildEntity = childEntity.substring(0, 1).toLowerCase() + childEntity.substring(1);
+
+		StringBuilder template = new StringBuilder();
+
+		template.append("List<" + childEntity + ">" + "new" + childEntity + "s=new ArrayList<>();\n");
+		// Iterate through the collection of child entities
+		template.append("\nfor (").append(childEntity).append(" ").append(lowerChildEntity).append(" : ")
+				.append(lowerChildEntity + "s").append(") {\n");
+
+//        // Set the parent reference in each child entity
+//        template.append("    ").append(lowerChildEntity).append(".set").append(parentEntity).append("(")
+//                .append(lowerParentEntity).append(");\n");
+
+		// Save each child entity
+		template.append("    ").append("new" + childEntity + "s" + ".add(").append(lowerChildEntity)
+				.append("Repository.save(").append(lowerChildEntity).append("));\n");
+
+		template.append("}\n");
+
+		template.append(lowerParentEntity + ".set" + childEntity + "s" + "(new" + childEntity + "s);");
+		return template.toString();
+	}
+
+	// Placeholder for ManyToMany relation
+	public String handleManyToMany() {
+		return null;
+	}
+
+	String handleSaveController(String Entity, List<String> params) {
+		String entity = Entity.substring(0, 1).toLowerCase() + Entity.substring(1);
+		String entityService = entity + "Service";
+
+		StringBuilder templateString = new StringBuilder();
+
+		// Adding method annotations and basic setup
+		templateString
+				.append(" @Operation(summary = \"Save new " + Entity + "\", description = \"Create a new " + Entity
+						+ " and save it to the database.\")\r\n")
+				.append("    @ApiResponses(value = {\r\n")
+				.append("        @ApiResponse(responseCode = \"201\", description = \"" + Entity
+						+ " successfully created\"),\r\n")
+				.append("        @ApiResponse(responseCode = \"400\", description = \"Invalid input\"),\r\n")
+				.append("        @ApiResponse(responseCode = \"500\", description = \"Internal server error\")\r\n")
+				.append("    })\r\n").append("    @PostMapping\r\n");
+
+		// Check if params require a DTO
+		if (params.size() > 1) {
+			// More than one parameter, use DTO
+			templateString
+					.append("    public ResponseEntity<?> save" + Entity + "(@RequestBody Save" + Entity + "DTO save"
+							+ entity + "DTO) {\r\n")
+					.append("        try {\r\n")
+					.append("            logger.info(\"Saving new " + entity + ": {}\", save" + entity + "DTO);\r\n");
+
+			// Building the service save method call with parameters from DTO
+			templateString.append("            // Save the new entity\r\n")
+					.append("            " + Entity + " savedEntity = " + entityService + ".save(\r\n");
+
+			// Append parameters by fetching from DTO
+			for (int i = 0; i < params.size(); i++) {
+				String param = params.get(i);
+				templateString.append("                save" + entity + "DTO.get" + capitalize(param) + "()");
+				if (i != params.size() - 1) {
+					templateString.append(",\r\n");
+				}
+			}
+
+			templateString.append(");\r\n");
+
+		} else {
+			// Only one parameter, no need for DTO
+			templateString
+					.append("    public ResponseEntity<?> save" + Entity + "(@RequestBody " + Entity + " " + entity
+							+ ") {\r\n")
+					.append("        try {\r\n")
+					.append("            logger.info(\"Saving new " + entity + ": {}\", " + entity + ");\r\n")
+					.append("            // Save the new entity\r\n")
+					.append("            " + Entity + " savedEntity = " + entityService + ".save(" + entity + ");\r\n");
+		}
+
+		// Common response handling logic for both cases
+		templateString.append("            // Return 201 status on successful save\r\n")
+				.append("            return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);\r\n")
+				.append("        } catch (IllegalArgumentException e) {\r\n")
+				.append("            // Log and handle invalid input\r\n")
+				.append("            logger.warn(\"Invalid input: {}\", e.getMessage());\r\n")
+				.append("            return new ResponseEntity<>(\"Invalid input\", HttpStatus.BAD_REQUEST);\r\n")
+				.append("        } catch (Exception e) {\r\n")
+				.append("            // Log the exception and return a 500 Internal Server Error\r\n")
+				.append("            logger.error(\"Error saving new " + entity + ". Error: {}\", e.getMessage());\r\n")
+				.append("            return new ResponseEntity<>(\"Internal server error\", HttpStatus.INTERNAL_SERVER_ERROR);\r\n")
+				.append("        }\r\n").append("    }");
+
+		return templateString.toString();
+	}
+
+	// Helper method to capitalize the first letter of a parameter
+	private String capitalize(String param) {
+		return param.substring(0, 1).toUpperCase() + param.substring(1);
+	}
+
 }
