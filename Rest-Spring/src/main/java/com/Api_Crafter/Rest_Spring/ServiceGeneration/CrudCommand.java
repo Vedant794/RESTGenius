@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
+import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
 
 public interface CrudCommand {
 	
-	String execute(Map<String, Schema> schemaMap,Schema schema);
+	ServiceController execute(Map<String, Schema> schemaMap,Schema schema);
 	
 	
 
