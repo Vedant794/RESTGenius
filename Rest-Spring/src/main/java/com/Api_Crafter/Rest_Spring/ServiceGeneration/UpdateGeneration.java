@@ -9,14 +9,19 @@ import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 public class UpdateGeneration implements CrudCommand {
 	
 	public final ImportUtils importUtils;
+	String projectName;
 	
-	UpdateGeneration(ImportUtils importUtils){
+	UpdateGeneration(ImportUtils importUtils,String projectName){
 		this.importUtils=importUtils;
+		this.projectName=projectName;
 	}
 
     @Override
     public ServiceController execute(Map<String, Schema> schemaMap, Schema schema) {
 
+    	importUtils.getServiceImport().add("import "+projectName+".Entity."+schema.getSchema_name());
+    	importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+    	
         String Entity = schema.getSchema_name(); // Entity name (e.g., User)
         String entityString = Entity.substring(0, 1).toLowerCase() + Entity.substring(1); // entity (e.g., user)
         String entityRepository = entityString + "Repository"; // userRepository

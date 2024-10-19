@@ -15,9 +15,10 @@ import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 public class DeleteGeneration implements CrudCommand {
 	
 	public final ImportUtils importUtils;
-	
-	public DeleteGeneration(ImportUtils importUtils) {
+	String projectName;
+	public DeleteGeneration(ImportUtils importUtils,String projectName) {
 	this.importUtils=importUtils;
+	this.projectName=projectName;
 	}
 
     @Override
@@ -28,6 +29,9 @@ public class DeleteGeneration implements CrudCommand {
         List<String> fetchStatements = new ArrayList<>();
         
         importUtils.getServiceAutowire().add(schema.getSchema_name()+"Repository "+schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1)+"Repository");
+
+        importUtils.getServiceImport().add("import "+projectName+".Entity."+schema.getSchema_name());
+		importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
 
         // Fetching the root entity
         fetchStatements.add(schema.getSchema_name()+" "+schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1)+"="+schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1) + "Repository.findById(id).orElseThrow(() -> new RuntimeException(\"" 
@@ -40,14 +44,21 @@ public class DeleteGeneration implements CrudCommand {
         // Traversing relationships in the schema
         while (!queue.isEmpty()) {
             SchemaLevel temp = queue.poll();
+            importUtils.getServiceImport().add("import "+projectName+".Entity."+temp.getSchmea().getSchema_name());
+			importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+
+            
             Schema currentSchema = temp.getSchmea();
             importUtils.getServiceAutowire().add(currentSchema.getSchema_name()+"Repository "+currentSchema.getSchema_name().substring(0, 1).toLowerCase() +currentSchema.getSchema_name().substring(1)+"Repository");
             
             for (Relation relation : currentSchema.getRelations()) {
+				importUtils.getServiceImport().add("import "+projectName+".Entity."+relation.getTarget());
+				importUtils.getServiceImport().add("import "+projectName+".Repositories."+relation.getTarget()+"Repository");
+            	
                 if (relation.getType().equals("OneToOne")) {
                     fetchStatements.add(handleOneToOne(currentSchema.getSchema_name(), relation.getTarget()));
                     deleteStatements.add(relation.getTarget().substring(0,1).toLowerCase()+relation.getTarget().substring(1)+"Repository.deleteById(" 
-                                         + currentSchema.getSchema_name() + ".get" 
+                                         + currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1) + ".get" 
                                          + relation.getTarget() + "Id());\n");
                 } else if (relation.getType().equals("OneToMany")) {
                     fetchStatements.add(handleOneToMany(currentSchema.getSchema_name(), relation.getTarget()));
@@ -64,7 +75,7 @@ public class DeleteGeneration implements CrudCommand {
         // Building the final method for deleting
         StringBuilder template = new StringBuilder();
         String parent = schema.getSchema_name();
-        template.append("void delete" + parent + "ById(String id) {\n");
+        template.append("public void delete" + parent + "ById(String id) {\n");
         
         // Add fetch statements
         fetchStatements.forEach(template::append);
@@ -95,6 +106,7 @@ String controllerString=handleDeleteController(schema.getSchema_name());
 
     // Method to handle OneToMany relationships
     String handleOneToMany(String parent, String child) {
+    	importUtils.getServiceImport().add("import java.util.List;");
         StringBuilder template = new StringBuilder();
         String smallchild = child.substring(0, 1).toLowerCase() + child.substring(1);
 
@@ -115,7 +127,7 @@ String controllerString=handleDeleteController(schema.getSchema_name());
     String handleDeleteController(String Entity) {
         String entity = Entity.substring(0, 1).toLowerCase() + Entity.substring(1);
         String entityService = entity + "Service";
-        
+
         String templateString = " @Operation(summary = \"Delete " + Entity + " by ID\", description = \"Delete a specific " + Entity + " by its ID.\")\r\n"
                 + "    @ApiResponses(value = {\r\n"
                 + "        @ApiResponse(responseCode = \"200\", description = \"" + Entity + " successfully deleted\"),\r\n"
@@ -127,24 +139,24 @@ String controllerString=handleDeleteController(schema.getSchema_name());
                 + "        try {\r\n"
                 + "            logger.info(\"Deleting " + entity + " with id: {}\", id);\r\n"
                 + "            \r\n"
-                + "            // Check if entity exists\r\n"
-                + "            if (" + entityService + ".existsById(id)) {\r\n"
-                + "                " + entityService + ".deleteById(id);\r\n"
-                + "                logger.info(\"" + Entity + " with id: {} successfully deleted\", id);\r\n"
-                + "                return new ResponseEntity<>(\"" + Entity + " successfully deleted\", HttpStatus.OK);\r\n"
-                + "            } else {\r\n"
-                + "                logger.warn(\"" + Entity + " with id: {} not found\", id);\r\n"
-                + "                return new ResponseEntity<>(\"" + Entity + " not found\", HttpStatus.NOT_FOUND);\r\n"
-                + "            }\r\n"
+                + "            // Attempt to delete the entity directly\r\n"
+                + "            " + entityService + ".deleteById(id);\r\n"
+                + "            logger.info(\"" + Entity + " with id: {} successfully deleted\", id);\r\n"
+                + "            return new ResponseEntity<>(\"" + Entity + " successfully deleted\", HttpStatus.OK);\r\n"
+                + "        } catch (NoSuchElementException e) {\r\n"
+                + "            // Handle case where entity does not exist\r\n"
+                + "            logger.warn(\"" + Entity + " with id: {} not found\", id);\r\n"
+                + "            return new ResponseEntity<>(\"" + Entity + " not found\", HttpStatus.NOT_FOUND);\r\n"
                 + "        } catch (Exception e) {\r\n"
                 + "            // Log the exception and return a 500 Internal Server Error\r\n"
                 + "            logger.error(\"Error deleting " + entity + " with id: {}. Error: {}\", id, e.getMessage());\r\n"
                 + "            return new ResponseEntity<>(\"Internal server error\", HttpStatus.INTERNAL_SERVER_ERROR);\r\n"
                 + "        }\r\n"
                 + "    }";
-        
+
         return templateString;
     }
+
 
     
 }
