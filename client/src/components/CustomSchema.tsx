@@ -3,13 +3,19 @@ import { IoMdAdd, IoMdTrash } from "react-icons/io";
 import useTheme from "./context/ModeContext";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
-import { schemaContext } from "./context/schemaContext";
+import useSchema, { schemaContext } from "./context/schemaContext";
+import useProjectName from './context/projectNameContext'
+import useRoute from "./context/routeContext";
+// import axios from "axios";
 
 
 export default function CustomSchema() {
-  const [schemas, setSchemas] = useState<any[]>([]);
+  const {schemas, setSchemas} = useSchema();
   const {mode} = useTheme()
   const navigate=useNavigate()
+  const {routes} =useRoute()
+
+  const {projectName} = useProjectName()
 
   type Attribute = {
     var_name: string;
@@ -152,20 +158,30 @@ export default function CustomSchema() {
     navigate('/getstarted/customSchema/routes')
   }
 
-  const handleAddRoutes = (schemaIndex: number, route: string) => {
-    const updatedSchemas = [...schemas];
-    updatedSchemas[schemaIndex].routes.push(route);
-    setSchemas(updatedSchemas);
-  };
+  const handleSubmit=(e:React.FormEvent)=>{
+    e.preventDefault();
 
-  // Update relations for a schema
-  const handleAddRelation = (schemaIndex: number, relation: string) => {
-    const updatedSchemas = [...schemas];
-    updatedSchemas[schemaIndex].relations.push(relation);
-    setSchemas(updatedSchemas);
-  };
+    const schemaData = schemas
+    // Save the schema to localStorage
+    localStorage.setItem("schemaData", JSON.stringify(schemaData));
 
+    // Navigate to the display schema page
+    navigate('/getstarted/previewCustomization')
+  }
+
+  const handleRelationNavigation=()=>{
+    navigate('/getstarted/customSchema/routes/relation')
+  }
+
+  const handleSendToBackend=async()=>{
+    try {
+      // await axios.post('http://localhost:3000/backend/createProject',{projectName,schemas})
+    } catch (error) {
+      console.error(error)
+    }
+  }
   // console.log(schemas)
+  // console.log(projectName)
 
   return (
     <schemaContext.Provider value={{schemas,setSchemas}}>
@@ -174,6 +190,7 @@ export default function CustomSchema() {
       <h1 className="text-2xl font-bold mb-4">Create Your Custom Schema</h1>
 
       <button
+        type="button"
         onClick={handleAddSchema}
         className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
       >
@@ -185,6 +202,13 @@ export default function CustomSchema() {
           key={schemaIndex}
           className={`schema-section shadow-custom-heavy ${mode?'bg-gray-100':'bg-[#202725] shadow-black'} p-4 mb-6 rounded-md`}
         >
+      <form
+           action=""
+           className="schemaForm"
+           onSubmit={handleSubmit}
+          
+      >
+          
           <input
             type="text"
             placeholder="Schema Name"
@@ -203,6 +227,7 @@ export default function CustomSchema() {
           />
 
           <button
+            type="button"
             onClick={() => handleAddAttribute(schemaIndex)}
             className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 mb-4 mt-2 rounded-md"
           >
@@ -325,6 +350,7 @@ export default function CustomSchema() {
                 <div className="nested-section">
                   <h4 className="font-bold mb-2">Nested Attributes</h4>
                   <button
+                    type="button"
                     onClick={() => handleAddNestedAttribute(schemaIndex, attrIndex)}
                     className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 rounded-md mb-2"
                   >
@@ -462,6 +488,7 @@ export default function CustomSchema() {
                         </div>
 
                         <button
+                          type="button"
                           onClick={() =>
                             handleRemoveNestedAttribute(schemaIndex, attrIndex, nestedIndex)
                           }
@@ -476,6 +503,7 @@ export default function CustomSchema() {
               )}
 
               <button
+                type="button"
                 onClick={() => handleRemoveAttribute(schemaIndex, attrIndex)}
                 className="h-auto w-auto flex justify-evenly items-center mt-4 text-lg font-medium bg-red-500 text-white px-2 py-1 rounded-md"
               >
@@ -485,18 +513,41 @@ export default function CustomSchema() {
           ))}
           <div className="routesDel flex justify-between items-center">
           <button
+            type="button"
             onClick={() => handleRemoveSchema(schemaIndex)}
             className="h-auto w-auto text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
           >
             Remove Schema
           </button>
           <button
-           onClick={handleNavigation}
+           type="button"
+           onClick={()=>{handleNavigation(); handleSendToBackend();}}
            className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
           >
             Create Routes
           </button>
+          {routes.length>0
+           &&
+           <button
+               type="button"
+               onClick={handleRelationNavigation}
+               className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+              >
+                Generate Relations
+              </button>
+          }
+          
           </div>
+          
+      <div className="generate flex justify-center">
+      <button
+       type="submit"
+       className={`h-auto w-auto px-3 py-5 flex items-center shadow-lg ${mode ? 'shadow-gray-600' : 'shadow-black'} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}
+      >
+        Preview Customization
+      </button>
+      </div>
+      </form>
         </div>
       ))}
     </div>

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { IoMdAdd, IoMdTrash } from "react-icons/io";
 import useTheme from "./context/ModeContext";
 import Navbar from "./Navbar";
 import { useNavigate } from "react-router-dom";
-import { RelationContext } from "./context/relationContext";
+import useRelation, { RelationContext } from "./context/relationContext";
 
 function CreateRelations() {
-  const [relation, setRelation] = useState<any[]>([]);
+  const {relation, setRelation} = useRelation();
   const {mode} = useTheme()
   const navigate=useNavigate()
 
@@ -67,6 +67,14 @@ function CreateRelations() {
     navigate('/getstarted/customSchema/routes')
   }
 
+  const handleSubmit=(e:React.FormEvent)=>{
+    e.preventDefault()
+    const relationData=relation
+
+    localStorage.setItem("RelationsData",JSON.stringify(relationData))
+    navigate('/getstarted/customSchema')
+  }
+
   return(
     <RelationContext.Provider value={{relation,setRelation}}>
     <Navbar/>
@@ -92,6 +100,10 @@ function CreateRelations() {
                     <div
                      key={relationInd}
                      className={`relationContent shadow-custom-heavy ${mode?'bg-gray-100':'bg-[#202725] shadow-black'} p-4 mb-6 rounded-md`}>
+                      <form
+                       onSubmit={handleSubmit}
+                       action=""
+                       >
                         <input
                          type="text"
                          placeholder="Enter Schema Name"
@@ -132,17 +144,31 @@ function CreateRelations() {
                             <option value="one-to-one">One-to-One</option>
                             <option value="one-to-many">One-to-Many</option>
                         </select>
-
+                         <div className="navBtn flex justify-between items-center">
                         <button 
+                         type="button"
                          onClick={()=>handleRemoveRelations(relationInd)}
                          className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
                         >
                             Delete Relation <IoMdTrash/>
                         </button>
+                        <button
+                         type="submit"
+                         className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+                        >
+                          Done
+                        </button>
+
+                         </div>
+
+                        </form>
                     </div>
                 ))}
             </div>
         </div>
+        <pre>
+        {JSON.stringify({relation},null,2)}
+      </pre>
     </RelationContext.Provider>
   )
 }

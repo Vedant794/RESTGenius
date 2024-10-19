@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { SchemaProvider } from './components/context/schemaContext';
 import { RouteContextProvider } from './components/context/routeContext';
 import { RelationContextProvider } from './components/context/relationContext';
+import PreviewCode from './components/PreviewCode';
+import { ProjectNameContextProvider } from './components/context/projectNameContext';
 
 
 function App() {
@@ -34,11 +36,18 @@ useEffect(()=>{
   }
 },[mode])
 
+const [schemas, setSchemas] = useState<any[]>([]);
+const [routes, setRoutes] = useState<any[]>([]);
+const [relation, setRelation] = useState<any[]>([]);
+const [projectName,setProjectName]=useState("")
+
+
   return (
     <ThemeProvider value={{mode,darkTheme,lightTheme}}>
-    <SchemaProvider value={undefined}>
-    <RouteContextProvider value={undefined}>
-    <RelationContextProvider value={undefined}>
+    <SchemaProvider value={{schemas,setSchemas}}>
+    <RouteContextProvider value={{routes,setRoutes}}>
+    <RelationContextProvider value={{relation,setRelation}}>
+    <ProjectNameContextProvider value={{projectName,setProjectName}}>
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<HomePage/>}></Route>
@@ -47,8 +56,10 @@ useEffect(()=>{
         <Route path='/getstarted/customSchema' element={<CustomSchema/>}></Route>
         <Route path='/getstarted/customSchema/routes' element={<CreateRoute/>}></Route>
         <Route path='/getstarted/customSchema/routes/relation' element={<CreateRelations/>}></Route>
+        <Route path='/getstarted/previewCustomization' element={<PreviewCode/>}></Route>
       </Routes>
     </BrowserRouter>
+    </ProjectNameContextProvider>
     </RelationContextProvider>
     </RouteContextProvider>
     </SchemaProvider>

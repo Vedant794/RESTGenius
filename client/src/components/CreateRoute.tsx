@@ -3,10 +3,10 @@ import { IoMdAdd, IoMdTrash } from "react-icons/io";
 import useTheme from "./context/ModeContext";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
-import { RouteContext } from "./context/routeContext";
+import useRoute, { RouteContext } from "./context/routeContext";
 
 function CreateRoute() {
-  const [routes, setRoutes] = useState<any[]>([]);
+  const {routes, setRoutes} = useRoute();
   const {mode} = useTheme()
   const navigate=useNavigate()
 
@@ -96,11 +96,17 @@ function CreateRoute() {
     navigate('/getstarted/customSchema')
   }
 
-  const handleRelationNavigation=()=>{
-    navigate('/getstarted/customSchema/routes/relation')
+
+
+  const handleSubmit=(e:React.FormEvent)=>{
+    e.preventDefault()
+    const routeData=routes
+
+    localStorage.setItem("RoutesData",JSON.stringify(routeData))
+    navigate('/getstarted/customSchema')
   }
 
-  console.log(routes)
+  // console.log(routes)
 
   return (
     <RouteContext.Provider value={{routes,setRoutes}}>
@@ -132,6 +138,10 @@ function CreateRoute() {
               className={`createRoute shadow-custom-heavy ${mode?'bg-gray-100':'bg-[#202725] shadow-black'} p-4 mb-6 rounded-md`}
               key={routeIndex}
             >
+              <form
+               action=""
+               onSubmit={handleSubmit}
+              >
               <input
                 type="text"
                 placeholder="Enter Url to be Generate"
@@ -163,6 +173,7 @@ function CreateRoute() {
               />
 
               <button
+                type="button"
                 onClick={() => handleCriteriaAddChange(routeIndex)}
                 className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-green-500 text-white px-4 py-2 mb-4 mt-2 rounded-md"
               >
@@ -242,6 +253,7 @@ function CreateRoute() {
                       </>
                     )}
                     <button
+                     type="button"
                      onClick={()=>handleRemoveCriteria(routeIndex,criteriaInd)}
                      className="h-auto w-auto flex justify-evenly items-center mt-4 text-lg font-medium bg-red-500 text-white px-2 py-1 rounded-md"
                     >
@@ -252,25 +264,35 @@ function CreateRoute() {
               )}
               <div className="relation flex justify-between items-center">
               <button
+               type="button"
                onClick={()=>handleRemoveRoutes(routeIndex)}
                className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
               >
                 Delete Route <IoMdTrash/>
               </button>
 
-              <button
-               onClick={handleRelationNavigation}
-               className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
-              >
-                Generate Relations
-              </button>
+              
 
 
               </div>
+              <div className="done flex justify-end mx-7">
+        <button
+         type="submit"
+         className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+        >
+          Done
+        </button>
+      </div>
+              </form>
             </div>
           ))}
         </div>
       </div>
+      <pre>
+        {JSON.stringify({routes},null,2)}
+      </pre>
+
+      
     </RouteContext.Provider>
   );
 }

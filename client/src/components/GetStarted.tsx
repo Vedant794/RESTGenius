@@ -17,7 +17,7 @@ export default function GetStarted() {
     { 
       name: "intro", 
       text: "Introduction", 
-      content: <></>, 
+      content:<></>, 
       link: "/getstarted"
     },
     { 
@@ -49,8 +49,6 @@ export default function GetStarted() {
                 ))
               }
             </ul>
-
-            <button className={`h-[3rem] w-[13rem] shadow-lg ${mode ? 'shadow-gray-600' : 'shadow-black'} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}>Generate</button>
           </aside>
 
           {/* Main content area */}
