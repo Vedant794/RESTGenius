@@ -6,7 +6,7 @@ import Navbar from "./Navbar";
 import useSchema, { schemaContext } from "./context/schemaContext";
 import useProjectName from './context/projectNameContext'
 import useRoute from "./context/routeContext";
-import axios from "axios";
+// import axios from "axios";
 
 
 export default function CustomSchema() {
@@ -175,7 +175,7 @@ export default function CustomSchema() {
 
   const handleSendToBackend=async()=>{
     try {
-      await axios.post('http://localhost:3000/backend/createProject',{projectName,schemas})
+      // await axios.post('http://localhost:3000/backend/createProject',{projectName,schemas})
     } catch (error) {
       console.error(error)
     }

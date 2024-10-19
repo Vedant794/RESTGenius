@@ -1,23 +1,11 @@
-import React, { useEffect, useState } from 'react'
-// import useSchema from './context/schemaContext'
-import axios from 'axios'
-import useProjectName from './context/projectNameContext'
+// import React, { useEffect, useState } from 'react'
+import useSchema from './context/schemaContext'
 
 function PreviewCode() {
-  const [data,setData]=useState()
-  const {projectName} = useProjectName()
-
-  const handlePreview=async()=>{
-    const response=await axios.get(`http://localhost:3000/backend/getProjectData/${projectName}`)
-    setData(response.data)
-  }
-
-  useEffect(()=>{
-    handlePreview()
-  },[])
+  const {schemas} = useSchema()
 
   return (
-    <div>{data}</div>
+    <div>{schemas}</div>
   )
 }
 
