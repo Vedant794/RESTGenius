@@ -9,6 +9,10 @@ export const RelationContext=createContext<relationContextType|undefined>(undefi
 
 export const RelationContextProvider=RelationContext.Provider
 
-export default function useRelation(){
-    useContext(RelationContext)
+export default function useRelation() {
+    const context = useContext(RelationContext);
+    if (context === undefined) {
+        throw new Error('useRelation must be used within a RelationContextProvider');
+    }
+    return context;
 }

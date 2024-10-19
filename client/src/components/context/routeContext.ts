@@ -9,6 +9,10 @@ export const RouteContext=createContext<routeContextType|undefined>(undefined)
 
 export const RouteContextProvider=RouteContext.Provider
 
-export default function useRoutes(){
-    useContext(RouteContext)
+export default function useRoute() {
+    const context = useContext(RouteContext);
+    if (context === undefined) {
+        throw new Error('useRoute must be used within a RouteContextProvider');
+    }
+    return context;
 }

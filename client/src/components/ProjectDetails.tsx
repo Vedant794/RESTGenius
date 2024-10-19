@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import useTheme from "./context/ModeContext";
 import { useNavigate } from "react-router-dom";
+import useProjectName, { projectNameContext } from "./context/projectNameContext";
 
 export default function ProjectDetails() {
   const [selectOrm, setSelectOrm] = useState("");
-  const [projectName, setProjectName] = useState("");
+  // const [projectName, setProjectName] = useState("");
   const [mongoUri, setMongoUri] = useState("");
   const [port, setPort] = useState<number | undefined>(undefined);
+  const [validate,setValidate] = useState(true)
   const navigate=useNavigate()
   const {mode} =useTheme()
+
+  const {projectName,setProjectName} = useProjectName()
 
   useEffect(() => {
     const storedData = sessionStorage.getItem("formData");
@@ -45,9 +49,22 @@ export default function ProjectDetails() {
   }
 
   const handleSchemaNavigation = () => {
-    saveFormData();
-    navigate('/getstarted/customSchema');
+    if(validate){
+      saveFormData();
+      navigate('/getstarted/customSchema');
+
+    }
   };
+  
+  const checkValidation=()=>{
+    if(projectName.length<=0){
+      setValidate(false)
+    }
+    else{
+      setValidate(true)
+    }
+  }
+
 
   const saveFormData = () => {
     const userInput: Details = {
@@ -56,6 +73,7 @@ export default function ProjectDetails() {
       mongoUri,
       port
     };
+
     // Store the data in sessionStorage
     sessionStorage.setItem("formData", JSON.stringify(userInput));
 
@@ -64,6 +82,7 @@ export default function ProjectDetails() {
   };
 
   return (
+    <projectNameContext.Provider value={{projectName,setProjectName}}>
     <div className="flex justify-center items-center overflow-y-hidden">
       <div className={`detailForm h-[78%] w-[40%] p-10 shadow-custom-heavy rounded-sm ${mode ? 'bg-white' : 'shadow-black'}`}>
         <form
@@ -86,6 +105,7 @@ export default function ProjectDetails() {
               onChange={handleProjectNameChange}
               className={`h-[2rem] w-[25rem] ${mode ? 'bg-slate-100 text-black' : 'bg-[#282929] text-white shadow-black'} p-5 focus:outline-none mt-3 shadow-xl`}
             />
+            {!validate?(<label className="text-red-600 text-base mt-3">*This field is necessary</label>):(<></>)}
           </div>
           <div className="uri flex flex-col justify-center mt-8">
             <label className="title text-lg font-sans font-medium" htmlFor="mongoUri">Monodb URL</label>
@@ -127,6 +147,7 @@ export default function ProjectDetails() {
           <div className="btns">
             <button
               type="submit"
+              onClick={checkValidation}
               className="h-[3rem] w-[7rem] shadow-lg rounded-xl mt-8 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110"
             >
               Next
@@ -135,5 +156,6 @@ export default function ProjectDetails() {
         </form>
       </div>
     </div>
+    </projectNameContext.Provider>
   );
 }
