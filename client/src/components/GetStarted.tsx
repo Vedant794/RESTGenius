@@ -2,7 +2,6 @@ import { useState } from 'react';
 import ProjectDetails from './ProjectDetails';
 import useTheme from './context/ModeContext';
 import Navbar from './Navbar';
-import Introduction from './introduction';
 
 export default function GetStarted() {
   const [activeLink, setActiveLink] = useState("intro");
@@ -18,7 +17,7 @@ export default function GetStarted() {
     { 
       name: "intro", 
       text: "Introduction", 
-      content: <Introduction/>, 
+      content:<></>, 
       link: "/getstarted"
     },
     { 
