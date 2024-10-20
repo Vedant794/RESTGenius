@@ -15,7 +15,6 @@ import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
 import com.Api_Crafter.Rest_Spring.Services.Helper;
 import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 
-@Service
 public class CrudCordinator {
 
 	// Injected template engine for rendering Thymeleaf templates
@@ -28,26 +27,27 @@ public class CrudCordinator {
 	private final Map<String, Schema> map;
 
 	// Object for handling advanced route generation
-	private final AdvanceRoutes advanceRoutes;
-	
+//	private final AdvanceRoutes advanceRoutes;
 	ImportUtils importUtils=new ImportUtils();
+	
 
-	public CrudCordinator(SpringTemplateEngine templateEngine, Map<String, Schema> helperMap) {
+	public CrudCordinator(SpringTemplateEngine templateEngine, Map<String, Schema> helperMap,String projectName) {
 		this.templateEngine = templateEngine;
 		this.map = helperMap;
 
-
-		crudCommands.add(new SaveGeneration(importUtils));
-		crudCommands.add(new FindByIdGeneration(importUtils));
-		crudCommands.add(new DeleteGeneration(importUtils));
-		crudCommands.add(new UpdateGeneration(importUtils));
+	
+		crudCommands.add(new SaveGeneration(importUtils, projectName));
+		crudCommands.add(new FindByIdGeneration(importUtils, projectName));
+		crudCommands.add(new DeleteGeneration(importUtils, projectName));
+		crudCommands.add(new UpdateGeneration(importUtils,projectName));
 
 		// Initialize advanced route handler
-		advanceRoutes = new AdvanceRoutes(templateEngine);
+	//	advanceRoutes = new AdvanceRoutes(templateEngine);
 	}
 
 	// Main method to execute CRUD and advanced route generation
 	public ServiceController execute(Schema schema) {
+	
 		List<String> serviceTemplateList = new ArrayList<>();
 		List<String> controllerTemplateList = new ArrayList<>();
 
@@ -59,9 +59,9 @@ public class CrudCordinator {
 		}
 
 		// Handle advanced routes based on the schema's routes
-		for (Route route : schema.getRoutes()) {
-			serviceTemplateList.add(advanceRoutes.HandleAdvanceRoutes(route, schema.getSchema_name()));
-		}
+//		for (Route route : schema.getRoutes()) {
+//			serviceTemplateList.add(advanceRoutes.HandleAdvanceRoutes(route, schema.getSchema_name()));
+//		}
 
 		// Prepare Thymeleaf context for template processing
 		Context context = new Context();
@@ -90,6 +90,7 @@ public class CrudCordinator {
 		serviceController.setService(serviceOutput);
 		serviceController.setController(controllerOutput);
 		
+		importUtils.clearAll();
 		// Return the generated service template (or you can modify this to return both)
 		return serviceController;
 	}

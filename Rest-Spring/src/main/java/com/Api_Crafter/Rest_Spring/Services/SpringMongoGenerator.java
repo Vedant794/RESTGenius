@@ -41,7 +41,7 @@ this.templateEngine=templateEngine;
 		// tesing
 		Map<String, Schema> schemaMaps = Helper.schemaMap(projectDetails);
 
-		CrudCordinator crudCordinator=new CrudCordinator(templateEngine,schemaMaps);
+		CrudCordinator crudCordinator=new CrudCordinator(templateEngine,schemaMaps,projectDetails.getProjectName());
 	
 		
 		

@@ -8,19 +8,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-
 public class ImportUtils {
-	
-	Set<String>serviceImport;
-	Set<String>controllerImport;
-	Set<String>serviceAutowire;
+    
+    Set<String> serviceImport;
+    Set<String> controllerImport;
+    Set<String> serviceAutowire;
 
-	
-	public ImportUtils(){
-		serviceImport=new HashSet<String>();
-	
-		serviceAutowire=new HashSet<String>();
-		controllerImport=new HashSet<String>();
-	}
+    public ImportUtils() {
+        serviceImport = new HashSet<String>();
+        serviceAutowire = new HashSet<String>();
+        controllerImport = new HashSet<String>();
+    }
 
+    // Method to clear all sets
+    public void clearAll() {
+        serviceImport.clear();
+        controllerImport.clear();
+        serviceAutowire.clear();
+    }
 }

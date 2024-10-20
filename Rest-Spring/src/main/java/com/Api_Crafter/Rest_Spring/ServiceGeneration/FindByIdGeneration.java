@@ -16,8 +16,11 @@ public class FindByIdGeneration implements CrudCommand {
 	
 	public final ImportUtils importUtils;
 	
-	public FindByIdGeneration(ImportUtils importUtils) {
+	String projectName;
+	
+	public FindByIdGeneration(ImportUtils importUtils,String projectName) {
 		this.importUtils=importUtils;
+		this.projectName=projectName;
 	}
 
     @Override
@@ -27,12 +30,21 @@ public class FindByIdGeneration implements CrudCommand {
         List<String> findByStrings = new ArrayList<>();
         findByStrings.add(handleOneToOne(schema.getSchema_name(), "id"));
 
+    	importUtils.getServiceImport().add("import "+projectName+".Entity."+schema.getSchema_name());
+		importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+
+        
         // Create a queue to traverse the schema relations
         Queue<SchemaLevel> queue = new LinkedList<>();
         queue.add(new SchemaLevel(schema, 0));
 
         while (!queue.isEmpty()) {
             SchemaLevel temp = queue.poll();
+            
+            importUtils.getServiceImport().add("import "+projectName+".Entity."+temp.getSchmea().getSchema_name());
+			importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+
+            
             int level = temp.getLevel();
             Schema currentSchema = temp.getSchmea();
             String lowerCurrentString=currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1);
@@ -40,18 +52,21 @@ public class FindByIdGeneration implements CrudCommand {
             
             // Traverse through each relation in the schema
             for (Relation relation : currentSchema.getRelations()) {
+				importUtils.getServiceImport().add("import "+projectName+".Entity."+relation.getTarget());
+				importUtils.getServiceImport().add("import "+projectName+".Repositories."+relation.getTarget()+"Repository");
+				
                 if (relation.isLazyLoad()) {
                     if (relation.getType().equals("OneToOne")) {
                         findByStrings.add(handleOneToOne(relation.getTarget(),
                                 currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1) + ".get" + relation.getTarget() + "Id()"));
-                        saveStrings.add("new" + currentSchema.getSchema_name() + ".set" + relation.getTarget() + "(new"
-                                + relation.getTarget() + ");\n");
+                        saveStrings.add(  currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1) + ".set" + relation.getTarget() + "("
+                                + relation.getTarget().substring(0,1).toLowerCase()+relation.getTarget().substring(1) + ");\n");
 
                         // Add related schema to queue for further processing
                         queue.add(new SchemaLevel(schemaMap.get(relation.getTarget()), level + 1));
                     } else {
                         findByStrings.add(handleOneToMany(currentSchema.getSchema_name(), relation.getTarget()));
-                        saveStrings.add("new"+currentSchema.getSchema_name()+".set"+relation.getTarget()+"s(new"+relation.getTarget()+"s);\n");
+                        saveStrings.add(""+currentSchema.getSchema_name()+".set"+relation.getTarget()+"s("+relation.getTarget()+"s);\n");
                     }
                 }
             }
@@ -60,7 +75,7 @@ public class FindByIdGeneration implements CrudCommand {
         // Generate the method body
         String parent = schema.getSchema_name();
         StringBuilder template = new StringBuilder();
-        template.append(parent + " get" + parent + "ById(String id){\n");
+        template.append("public "+parent + " get" + parent + "ById(String id){\n");
 
         // Add all findByStrings and saveStrings to the method
         findByStrings.forEach(template::append);
@@ -68,7 +83,7 @@ public class FindByIdGeneration implements CrudCommand {
         saveStrings.forEach(template::append);
 
         // Final return statement
-        template.append("return new" + parent + ";\n}");
+        template.append("return " + parent.substring(0,1).toLowerCase()+parent.substring(1)+ ";\n}");
 
         // Print generated template for verification
        // System.out.println(template);
@@ -91,6 +106,7 @@ public class FindByIdGeneration implements CrudCommand {
 
     // Method to handle OneToMany relationships
     private String handleOneToMany(String parent, String child) {
+    	importUtils.getServiceImport().add("import java.util.List;");
         String smallChild = child.substring(0, 1).toLowerCase() + child.substring(1);
         String smallParent = parent.substring(0, 1).toLowerCase() + parent.substring(1);
 
@@ -101,7 +117,7 @@ public class FindByIdGeneration implements CrudCommand {
         
         // Generate code for looping through parent and fetching child objects
         template.append("for (String it : " + smallParent + ".get" + child + "Ids()) {\n");
-        template.append("    new" + smallChild + "s.add(");
+        template.append("    " + smallChild + "s.add(");
         template.append(smallChild + "Repository.findById(it)");
         template.append(".orElseThrow(() -> new RuntimeException(\"" + child + " not found\")));\n");
         template.append("}\n");
