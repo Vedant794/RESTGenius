@@ -50,6 +50,7 @@ export const getProjectDatas = async (req, res) => {
 export const addRoutes = async(req,res)=>{
     const {projectName,schemaName} = req.params;
     const newRoutes=req.body
+    console.log(newRoutes)
     try {
         const addRoutes= await addRouteToSchema(projectName,schemaName,newRoutes)
         res.status(200).json({success:true,addRoutes})
@@ -61,6 +62,8 @@ export const addRoutes = async(req,res)=>{
 export const addRelations = async(req,res)=>{
     const {projectName,schemaName} = req.params
     const newRelation=req.body
+    // console.log(newRelation);
+    
     try {
         const addRelations=await addRelationToSchema(projectName,schemaName,newRelation)
         res.status(200).json({success:true,addRelations})

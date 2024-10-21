@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 import { IoMdAdd, IoMdTrash } from "react-icons/io";
 import useTheme from "./context/ModeContext";
-import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import useRoute, { RouteContext } from "./context/routeContext";
 import axios from "axios";
 import useProjectName from "./context/projectNameContext";
 import useSchema from "./context/schemaContext";
 import useSchemaIndex from "./context/SchemaIndex";
+import GetStarted from "./GetStarted";
 
 function CreateRoute() {
   const {routes, setRoutes} = useRoute();
   const {mode} = useTheme()
-  const navigate=useNavigate()
   const {projectName} = useProjectName()
   const {schemas} = useSchema()
   const {ind} =useSchemaIndex()
+  const [schemaName,setSchemaName]=useState("")
 
   type criteria = {
     targetVar: string;
@@ -99,47 +99,51 @@ function CreateRoute() {
     setRoutes(updatedRoutes);
   };
 
-  const handleBack=()=>{
-    navigate('/getstarted/customSchema')
-  }
-
-
-
   const handleSubmit=(e:React.FormEvent)=>{
     e.preventDefault()
     const routeData=routes
 
     localStorage.setItem("RoutesData",JSON.stringify(routeData))
-    navigate('/getstarted/customSchema')
   }
 
   const handleRoutesToBackend=async()=>{
     try {
-      const schemaName=schemas[ind].schema_name
-      axios.post(`http://localhost:3000/backend/addRoutes/${projectName}/${schemaName}`)
-    } catch (error) {
+      const response=await axios.post(`http://localhost:3000/backend/addRoutes/${projectName}/${schemaName}`,{routes})
+      // console.log(response.data);
       
+    } catch (error) {
+      console.error(error)
     }
+  }
+
+  const handleSchemaName=(name:string)=>{
+    setSchemaName(name)
   }
   // console.log(ind)
   // console.log(routes)
 
   return (
+    <div className="overflow-x-hidden">
     <RouteContext.Provider value={{routes,setRoutes}}>
       <Navbar/>
-      <div className="container mx-auto p-4 my-[13vh]">
+      <GetStarted/>
+      <div className="container mx-auto p-4 -mt-[99vh] ml-60">
         <div className="routes">
-          <h1 className="text-2xl font-bold mb-4">
-            Create Routes
-          </h1>
-          <div className="add-back flex justify-between items-center">
-            <button
-             onClick={handleBack}
-             className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-gray-500 text-white px-4 py-2 rounded-md mb-2"
-            >
-              Back
-            </button>
+          <div className="name flex justify-around">
+            <h1 className="text-2xl font-bold mb-4">
+              Create Routes
+            </h1>
+            <input
+            type="text"
+            placeholder="Enter Schema name for Which you want to make routes"
+            onChange={(e)=>{
+              handleSchemaName(e.target.value)
+            }}
+            className="w-[27rem] p-2 ml-6 focus:outline-none border-b-2 border-black"
+            />
 
+          </div>
+          <div className="add-back flex justify-between items-center">
           <button
             onClick={handleAddRoutes}
             className={`h-auto w-auto text-lg flex justify-evenly items-center font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
@@ -307,12 +311,10 @@ function CreateRoute() {
           ))}
         </div>
       </div>
-      <pre>
-        {JSON.stringify({routes},null,2)}
-      </pre>
 
       
     </RouteContext.Provider>
+    </div>
   );
 }
 

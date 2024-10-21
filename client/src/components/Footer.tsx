@@ -3,7 +3,7 @@ import modelLogo from '../assets/modelLogo1.png'
 
 export default function Footer() {
   return (
-    <div>
+    <div className='border-t-2 border-white'>
       <footer className='h-[6rem] w-full flex justify-evenly items-center border-t-gray-200 border-t-2'>
         <img src={modelLogo} alt="EazyAPI" className='h-[60px] w-auto cursor-pointer' title='Smart API generation for modern day Programmers'/>
         <p className='text-gray-500 text-lg font-mono'>&copy; 2024 EazyAPI</p>

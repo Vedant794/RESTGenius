@@ -1,27 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IoMdAdd, IoMdTrash } from "react-icons/io";
 import useTheme from "./context/ModeContext";
 import Navbar from "./Navbar";
-import { useNavigate } from "react-router-dom";
 import useRelation, { RelationContext } from "./context/relationContext";
+import GetStarted from "./GetStarted";
+import axios from "axios";
+import useProjectName from "./context/projectNameContext";
 
 function CreateRelations() {
-  const {relation, setRelation} = useRelation();
-  const {mode} = useTheme()
-  const navigate=useNavigate()
+  const { relation, setRelation } = useRelation();
+  const { mode } = useTheme();
+  const [schemaName, setSchemaName] = useState("");
+  const { projectName } = useProjectName();
 
-  useEffect(()=>{
-    const savedRoutes=sessionStorage.getItem("routes")
-    if(savedRoutes){
-      setRelation(JSON.parse(savedRoutes))
+  useEffect(() => {
+    const savedRoutes = localStorage.getItem("relation");
+    if (savedRoutes) {
+      setRelation(JSON.parse(savedRoutes));
     }
-  },[])
+  }, []);
 
-  useEffect(()=>{
-    sessionStorage.setItem("routes",JSON.stringify(relation))
-  },[relation])
-
-  //Relation Functions going on
+  useEffect(() => {
+    localStorage.setItem("relation", JSON.stringify(relation));
+  }, [relation]);
 
   const handleAddRelation = () => {
     setRelation([
@@ -29,8 +30,8 @@ function CreateRelations() {
       {
         schema: "",
         target: "",
-        lazyLoad: "",
-        type: "",
+        lazyLoad: false,  // Default boolean value
+        type: "one-to-one", // Default type
       },
     ]);
   };
@@ -51,7 +52,7 @@ function CreateRelations() {
     setRelation(updatedRelation);
   };
 
-  const handleLazyLoadChange = (index: number, value: string) => {
+  const handleLazyLoadChange = (index: number, value: boolean) => {
     const updatedRelation = [...relation];
     updatedRelation[index].lazyLoad = value;
     setRelation(updatedRelation);
@@ -63,114 +64,129 @@ function CreateRelations() {
     setRelation(updatedRelation);
   };
 
-  const handleBack=()=>{
-    navigate('/getstarted/customSchema/routes')
-  }
+  const handleRelationToBackend = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/backend/addRelation/${projectName}/${schemaName}`,
+        { relation }
+      );
+      // console.log(response.data);
+    } catch (error) {
+      console.error("Error adding relation to backend:", error);
+    }
+  };
 
-  const handleSubmit=(e:React.FormEvent)=>{
-    e.preventDefault()
-    const relationData=relation
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    localStorage.setItem("RelationsData",JSON.stringify(relationData))
-    navigate('/getstarted/customSchema')
-  }
+    // Validate input fields
+    const hasEmptyFields = relation.some(rel => !rel.schema || !rel.target);
+    if (hasEmptyFields) {
+      alert("Please fill in all fields before submitting.");
+      return;
+    }
 
-  return(
-    <RelationContext.Provider value={{relation,setRelation}}>
-    <Navbar/>
-        <div className="container mx-auto p-4 my-[13vh]">
-            <div className="relations">
-                <h1 className="text-2xl font-bold mb-4">Create Relations Between Schemas</h1>
-                <div className="back flex justify-between items-center">
-                  <button
-                  onClick={handleBack}
-                  className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-gray-500 text-white px-4 py-2 rounded-md mb-2"
-                  >
-                    Back
-                  </button>
-                <button
-                 onClick={handleAddRelation}
-                 className={`h-auto w-auto text-lg flex justify-evenly items-center font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+    await handleRelationToBackend();
+  };
+
+  const handleSchemaName = (name: string) => {
+    setSchemaName(name);
+  };
+
+  // console.log(relation)
+
+  return (
+    <RelationContext.Provider value={{ relation, setRelation }}>
+      <Navbar />
+      <GetStarted />
+      <div className="container mx-auto p-4 -my-[99vh] ml-60">
+        <div className="relations">
+          <div className="name flex justify-around">
+            <h1 className="text-2xl font-bold mb-4">Create Relations Between Schemas</h1>
+            <input
+              type="text"
+              placeholder="Enter Schema name for Which you want to make Relations"
+              onChange={(e) => handleSchemaName(e.target.value)}
+              className="w-[27rem] p-2 ml-6 focus:outline-none border-b-2 border-black"
+            />
+          </div>
+          <div className="back flex justify-between items-center">
+            <button
+              onClick={handleAddRelation}
+              className={`h-auto w-auto text-lg flex justify-evenly items-center font-medium shadow-lg ${mode ? "shadow-slate-500" : "shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+            >
+              Add Relations<IoMdAdd />
+            </button>
+          </div>
+
+          {relation.map((relation, relationInd) => (
+            <div
+              key={relationInd}
+              className={`relationContent shadow-custom-heavy ${mode ? 'bg-gray-100' : 'bg-[#202725] shadow-black'} p-4 mb-6 rounded-md`}
+            >
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  placeholder="Enter Schema Name"
+                  value={relation.schema}
+                  onChange={(e) => handleSchemaChange(relationInd, e.target.value)}
+                  className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
+                />
+
+                <input
+                  type="text"
+                  placeholder="Enter Target Entity"
+                  value={relation.target}
+                  onChange={(e) => handleTargetChange(relationInd, e.target.value)}
+                  className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
+                />
+                <div className="lazyload ml-2">
+                <label>Select LazyLoad:-</label>
+                <select
+                  value={relation.lazyLoad.toString()} // Convert boolean to string
+                  onChange={(e) => handleLazyLoadChange(relationInd, e.target.value === 'true')}
+                  className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
                 >
-                    Add Relations<IoMdAdd/>
-                </button>
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+
                 </div>
+                <div className="type ml-2">
+                  <label>Select Relation Type:-</label>
+                <select
+                  value={relation.type}
+                  onChange={(e) => handleTypeChange(relationInd, e.target.value)}
+                  className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
+                >
+                  <option value="one-to-one">One-to-One</option>
+                  <option value="one-to-many">One-to-Many</option>
+                </select>
 
-                {relation.map((relation,relationInd)=>(
-                    <div
-                     key={relationInd}
-                     className={`relationContent shadow-custom-heavy ${mode?'bg-gray-100':'bg-[#202725] shadow-black'} p-4 mb-6 rounded-md`}>
-                      <form
-                       onSubmit={handleSubmit}
-                       action=""
-                       >
-                        <input
-                         type="text"
-                         placeholder="Enter Schema Name"
-                         value={relation.schema}
-                         onChange={(e)=>{
-                            handleSchemaChange(relationInd,e.target.value)
-                         }}
-                         className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`} 
-                        />
-
-                        <input
-                          type="text"
-                          placeholder="Enter Target Entity"
-                          value={relation.target}
-                          onChange={(e)=>{
-                            handleTargetChange(relationInd,e.target.value)
-                          }}
-                          className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
-                        />
-
-                        <select
-                           value={relation.lazyLoad}
-                           onChange={(e)=>[
-                            handleLazyLoadChange(relationInd,e.target.value)
-                           ]}
-                           className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
-                        >
-                            <option value="true">True</option>
-                            <option value="false">False</option>
-                        </select>
-                        <select
-                         value={relation.type}
-                         onChange={(e)=>{
-                            handleTypeChange(relationInd,e.target.value)
-                         }}
-                         className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode?'bg-white':'bg-[#282929] shadow-black'} focus:outline-none`}
-                        >
-                            <option value="one-to-one">One-to-One</option>
-                            <option value="one-to-many">One-to-Many</option>
-                        </select>
-                         <div className="navBtn flex justify-between items-center">
-                        <button 
-                         type="button"
-                         onClick={()=>handleRemoveRelations(relationInd)}
-                         className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
-                        >
-                            Delete Relation <IoMdTrash/>
-                        </button>
-                        <button
-                         type="submit"
-                         className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
-                        >
-                          Done
-                        </button>
-
-                         </div>
-
-                        </form>
-                    </div>
-                ))}
+                </div>
+                <div className="navBtn flex justify-between items-center">
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveRelations(relationInd)}
+                    className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
+                  >
+                    Delete Relation <IoMdTrash />
+                  </button>
+                  <button
+                    type="submit"
+                    className={`h-auto w-auto text-lg font-medium shadow-lg ${mode ? "shadow-slate-500" : "shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
+                  >
+                    Done
+                  </button>
+                </div>
+              </form>
             </div>
+          ))}
         </div>
-        <pre>
-        {JSON.stringify({relation},null,2)}
-      </pre>
+      </div>
+      <pre>{JSON.stringify({ relation }, null, 2)}</pre>
     </RelationContext.Provider>
-  )
+  );
 }
 
 export default CreateRelations;
