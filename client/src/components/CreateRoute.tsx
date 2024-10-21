@@ -4,11 +4,18 @@ import useTheme from "./context/ModeContext";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import useRoute, { RouteContext } from "./context/routeContext";
+import axios from "axios";
+import useProjectName from "./context/projectNameContext";
+import useSchema from "./context/schemaContext";
+import useSchemaIndex from "./context/SchemaIndex";
 
 function CreateRoute() {
   const {routes, setRoutes} = useRoute();
   const {mode} = useTheme()
   const navigate=useNavigate()
+  const {projectName} = useProjectName()
+  const {schemas} = useSchema()
+  const {ind} =useSchemaIndex()
 
   type criteria = {
     targetVar: string;
@@ -106,6 +113,15 @@ function CreateRoute() {
     navigate('/getstarted/customSchema')
   }
 
+  const handleRoutesToBackend=async()=>{
+    try {
+      const schemaName=schemas[ind].schema_name
+      axios.post(`http://localhost:3000/backend/addRoutes/${projectName}/${schemaName}`)
+    } catch (error) {
+      
+    }
+  }
+  // console.log(ind)
   // console.log(routes)
 
   return (
@@ -140,7 +156,10 @@ function CreateRoute() {
             >
               <form
                action=""
-               onSubmit={handleSubmit}
+               onSubmit={(e)=>{
+                handleSubmit(e);
+                handleRoutesToBackend()
+              }}
               >
               <input
                 type="text"

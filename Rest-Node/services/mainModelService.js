@@ -109,4 +109,15 @@ export const addRouteToSchema = async (projectName, schemaName, newRoute) => {
     console.log(`Route added successfully to ${schemaName}:`, newRelation);
     return updatedProject;
   }
+
+  export const addSchemaToProject = async (projectName,newSchema) =>{
+    const project = await findProjectByName(projectName);
+    if (!project) {
+      throw new Error(`Project with name '${projectName}' not found`);
+    }
+    project.schemas.push(newSchema);
+    const updatedProject = await project.save()
+    console.log(`Schema is added in ${projectName}:`,newSchema);
+    return updatedProject
+  }
   
