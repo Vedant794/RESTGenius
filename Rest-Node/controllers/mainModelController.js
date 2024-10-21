@@ -1,4 +1,4 @@
-import {createProject,updateSchema,deleteSchema,getProjectData,addRouteToSchema, addRelationToSchema} from '../services/mainModelService.js';
+import {createProject,updateSchema,deleteSchema,getProjectData,addRouteToSchema, addRelationToSchema, addSchemaToProject} from '../services/mainModelService.js';
 
 // Controller to handle creating a new project
 export const createProjects = async (req, res) => {
@@ -67,4 +67,16 @@ export const addRelations = async(req,res)=>{
     } catch (error) {
         res.status(500).json({ success:false, message:error.message })
     }
+}
+
+export const addSchemas = async(req,res)=>{
+  const {projectName} = req.params
+  const newSchema=req.body
+  console.log(newSchema)
+  try {
+      const addSchema=await addSchemaToProject(projectName,newSchema)
+      res.status(200).json({success:true,addSchema})
+  } catch (error) {
+      res.status(500).json({ success:false, message:error.message })
+  }
 }

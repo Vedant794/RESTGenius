@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import useTheme from "./context/ModeContext";
 import { useNavigate } from "react-router-dom";
 import useProjectName, { projectNameContext } from "./context/projectNameContext";
+import useSchema from "./context/schemaContext";
+import axios from "axios";
 
 export default function ProjectDetails() {
   const [selectOrm, setSelectOrm] = useState("");
@@ -13,6 +15,7 @@ export default function ProjectDetails() {
   const {mode} =useTheme()
 
   const {projectName,setProjectName} = useProjectName()
+  const {schemas} = useSchema()
 
   useEffect(() => {
     const storedData = sessionStorage.getItem("formData");
@@ -62,6 +65,15 @@ export default function ProjectDetails() {
     }
     else{
       setValidate(true)
+    }
+  }
+
+  const sendToBAckend=async()=>{
+    try {
+      console.log(projectName)
+      axios.post('http://localhost:3000/backend/createProject',{projectName,schemas})
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -147,7 +159,7 @@ export default function ProjectDetails() {
           <div className="btns">
             <button
               type="submit"
-              onClick={checkValidation}
+              onClick={()=>{checkValidation(); sendToBAckend();}}
               className="h-[3rem] w-[7rem] shadow-lg rounded-xl mt-8 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110"
             >
               Next

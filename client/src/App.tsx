@@ -13,6 +13,7 @@ import { RouteContextProvider } from './components/context/routeContext';
 import { RelationContextProvider } from './components/context/relationContext';
 import PreviewCode from './components/PreviewCode';
 import { ProjectNameContextProvider } from './components/context/projectNameContext';
+import { SchemaIndexProvider } from './components/context/SchemaIndex';
 
 
 function App() {
@@ -40,6 +41,7 @@ const [schemas, setSchemas] = useState<any[]>([]);
 const [routes, setRoutes] = useState<any[]>([]);
 const [relation, setRelation] = useState<any[]>([]);
 const [projectName,setProjectName]=useState("")
+const [ind,setIndex] = useState(-1)
 
 
   return (
@@ -48,6 +50,7 @@ const [projectName,setProjectName]=useState("")
     <RouteContextProvider value={{routes,setRoutes}}>
     <RelationContextProvider value={{relation,setRelation}}>
     <ProjectNameContextProvider value={{projectName,setProjectName}}>
+      <SchemaIndexProvider value={{ind,setIndex}}>
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<HomePage/>}></Route>
@@ -59,6 +62,7 @@ const [projectName,setProjectName]=useState("")
         <Route path='/getstarted/previewCustomization' element={<PreviewCode/>}></Route>
       </Routes>
     </BrowserRouter>
+    </SchemaIndexProvider>
     </ProjectNameContextProvider>
     </RelationContextProvider>
     </RouteContextProvider>

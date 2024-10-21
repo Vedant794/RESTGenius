@@ -6,7 +6,8 @@ import Navbar from "./Navbar";
 import useSchema, { schemaContext } from "./context/schemaContext";
 import useProjectName from './context/projectNameContext'
 import useRoute from "./context/routeContext";
-// import axios from "axios";
+import axios from "axios";
+import useSchemaIndex, { SchemaIndexContext } from "./context/SchemaIndex";
 
 
 export default function CustomSchema() {
@@ -14,6 +15,7 @@ export default function CustomSchema() {
   const {mode} = useTheme()
   const navigate=useNavigate()
   const {routes} =useRoute()
+  const {ind,setIndex} = useSchemaIndex()
 
   const {projectName} = useProjectName()
 
@@ -59,10 +61,20 @@ export default function CustomSchema() {
     setSchemas(schemas.filter((_, idx) => idx !== index));
   };
 
+  const handleRemoveSchemaToBackend=async()=>{
+    try {
+      const schemaName=schemas[ind].schema_name
+      await axios.delete(`http://localhost:3000/backend/dleteSchema/${projectName}/${schemaName}`)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const handleSchemaNameChange = (index: number, value: string) => {
     const updatedSchemas = [...schemas];
     updatedSchemas[index].schema_name = value;
     setSchemas(updatedSchemas);
+    setIndex(index)
   };
 
   const handleDBNameChange = (index: number, value: string) => {
@@ -154,8 +166,9 @@ export default function CustomSchema() {
     setSchemas(updatedSchemas);
   };
 
-  const handleNavigation=()=>{
+  const handleNavigation=(index:number)=>{
     navigate('/getstarted/customSchema/routes')
+    setIndex(index)
   }
 
   const handleSubmit=(e:React.FormEvent)=>{
@@ -164,27 +177,31 @@ export default function CustomSchema() {
     const schemaData = schemas
     // Save the schema to localStorage
     localStorage.setItem("schemaData", JSON.stringify(schemaData));
-
-    // Navigate to the display schema page
-    navigate('/getstarted/previewCustomization')
   }
 
-  const handleRelationNavigation=()=>{
+  const handleRelationNavigation=(index:number)=>{
     navigate('/getstarted/customSchema/routes/relation')
+    setIndex(index)
   }
 
-  const handleSendToBackend=async()=>{
+  const handleAddSchemaToBackend = async (index: number) => {
     try {
-      // await axios.post('http://localhost:3000/backend/createProject',{projectName,schemas})
+      console.log(schemas[index])
+      const response = await axios.post(`http://localhost:3000/backend/addSchemas/${projectName}`, {
+        schemas: schemas[index],
+      });
+      console.log(response.data);
     } catch (error) {
-      console.error(error)
+      console.error("Error adding schema to backend:", error);
     }
-  }
+  };
+  
   // console.log(schemas)
-  // console.log(projectName)
+  console.log(projectName)
 
   return (
     <schemaContext.Provider value={{schemas,setSchemas}}>
+      <SchemaIndexContext.Provider value={{ind,setIndex}}>
     <Navbar/>
     <div className="container mx-auto my-[13vh] p-4">
       <h1 className="text-2xl font-bold mb-4">Create Your Custom Schema</h1>
@@ -514,14 +531,14 @@ export default function CustomSchema() {
           <div className="routesDel flex justify-between items-center">
           <button
             type="button"
-            onClick={() => handleRemoveSchema(schemaIndex)}
+            onClick={() => {handleRemoveSchema(schemaIndex); handleRemoveSchemaToBackend()}}
             className="h-auto w-auto text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
           >
             Remove Schema
           </button>
           <button
            type="button"
-           onClick={()=>{handleNavigation(); handleSendToBackend();}}
+           onClick={()=>handleNavigation(schemaIndex)}
            className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
           >
             Create Routes
@@ -530,7 +547,7 @@ export default function CustomSchema() {
            &&
            <button
                type="button"
-               onClick={handleRelationNavigation}
+               onClick={()=>handleRelationNavigation(schemaIndex)}
                className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode?"shadow-slate-500":"shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
               >
                 Generate Relations
@@ -539,18 +556,20 @@ export default function CustomSchema() {
           
           </div>
           
-      <div className="generate flex justify-center">
+      <div className="generate flex justify-end mr-3">
       <button
        type="submit"
-       className={`h-auto w-auto px-3 py-5 flex items-center shadow-lg ${mode ? 'shadow-gray-600' : 'shadow-black'} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}
+       onClick={()=>handleAddSchemaToBackend(schemaIndex)}
+       className={`h-auto w-auto px-3 py-2 flex items-center shadow-lg ${mode ? 'shadow-gray-600' : 'shadow-black'} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}
       >
-        Preview Customization
+        Done
       </button>
       </div>
       </form>
         </div>
       ))}
     </div>
+    </SchemaIndexContext.Provider>
     </schemaContext.Provider>
   );
 }
