@@ -1,3 +1,0 @@
-public Optional<[[${Entity}]]> get[[${Entity}]]ById(String id) {
-		   return [[${entityRepository}]].findById(id);
-			   }

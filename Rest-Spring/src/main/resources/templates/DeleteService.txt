@@ -1,3 +1,0 @@
-public void delete[[${Entity}]] (String id) {
-				     [[${entityRepository}]].deleteById(id);
-			   }

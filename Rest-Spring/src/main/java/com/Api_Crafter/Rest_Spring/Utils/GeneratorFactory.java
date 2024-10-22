@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.EntityHandler;
-import com.Api_Crafter.Rest_Spring.EntitiesGeneration.GenerateService;
+
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.RepositoryGenerator;
 import com.Api_Crafter.Rest_Spring.Services.SpringMongoGenerator;
 
@@ -22,8 +22,8 @@ public class GeneratorFactory {
     public Generator springGenerator(String database) {
         switch (database) {
             case "Mongo":
-                return new SpringMongoGenerator(new EntityHandler(templateEngine),new RepositoryGenerator(templateEngine)
-                		,new GenerateService(templateEngine)); // Pass the template engine
+                return new SpringMongoGenerator(new EntityHandler(templateEngine),new RepositoryGenerator(templateEngine), templateEngine
+                		); // Pass the template engine
             default:
                 throw new IllegalArgumentException("Unexpected value: " + database);
         }

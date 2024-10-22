@@ -3,16 +3,18 @@ package com.Api_Crafter.Rest_Spring.DTO;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@Builder
-public class ProjectDetails {
+public class Route {
+
+	String url;
 	
-	String projectName;
+	String service_name;
 	
-List<Schema>schemas;
+	String controller_name;
+	
+	List<Criteria>criterias;
+	
 }

@@ -1,18 +1,22 @@
 package com.example.demo.service;
 
-import com.example.demo.model.[[${Entity}]];
-import com.example.demo.repository.[[${EntityRepository}]];
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+ [# th:each="import : ${ServiceImports}"]
+       [[${import}]]
+    [/]
 
 @Service
 public class [[${Entity}]]Service {
 
-    @Autowired
-    private [[${EntityRepository}]]  [[${entityRepository}]];
+    
+  
+ [# th:each="repository : ${Repositories}"]
+        @Autowired 
+     private   [[${repository}]];
+    [/]
 
       [# th:each="Service : ${Services}"]
        [[${Service}]]

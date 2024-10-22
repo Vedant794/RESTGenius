@@ -1,4 +1,0 @@
-"@DeleteMapping(\"/{id}\")
-			   public void delete[[${Entity}]](@PathVariable String id) {
-				     [[${entityService}]].delete[[${Entity}]](id);
-				    };

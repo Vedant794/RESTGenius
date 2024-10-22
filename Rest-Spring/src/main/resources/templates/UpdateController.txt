@@ -1,4 +1,0 @@
-@PutMapping(\"/{id}\")
-				    public [[${Entity}]] update[[${Entity}]](@PathVariable String id, @RequestBody [[${Entity}]] [[${entity}]]) {
-				        return [[${entityService}]].update[[${Entity}]](id, [[${entity}]]);
-				  }

@@ -19,21 +19,21 @@ import { useTransition, animated } from 'react-spring';
 
 
 const override: CSSProperties = {
-  display: "block",
-  margin: "0 auto",
-  borderColor: "red",
+  display: 'block',
+  margin: '0 auto',
+  borderColor: 'red',
 };
 
 export default function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
-  const { loading, color, toggleLoading } = useLoader("#000000", false); // Ensure loader is initially false
+  const { loading, color, toggleLoading } = useLoader('#000000', false); // Ensure loader is initially false
   const navigate = useNavigate();
 
   const handleLoading = () => {
     toggleLoading(); // Start loader
     setTimeout(() => {
       toggleLoading(); // Stop loader after 2 seconds
-      navigate("/getstarted"); // Navigate to /getstarted page
+      navigate('/getstarted'); // Navigate to /getstarted page
     }, 2000); // 2-second delay for the loader simulation
   };
 
@@ -90,33 +90,22 @@ export default function HomePage() {
 
 
   return (
-    <div style={{backgroundColor: "#e0f2f1"}}>
+    <>
       <div
         className={`upSideHomePage relative h-[55rem] w-full transform transition-all duration-1000 ease-in-out ${
-          isVisible ? "opacity-100" : "opacity-0"
+          isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         style={{ backgroundColor: '#e0f2f1' }} // Set background color
       >
-        <div
-          className="relative bg-cover bg-center h-[51rem] w-full"
-          style={{ backgroundImage: `url(${homeBack})` }}
-        >
+        <div className="relative bg-cover bg-center h-[51rem] w-full" style={{ backgroundImage: `url(${homeBack})` }}>
           {/* Header */}
           <header className="header-api w-full h-[15%] flex justify-evenly items-center">
             <div className="logo-login flex justify-between w-[85%] items-center">
               <span title="Smart API generation for modern day Programmers">
-                <img
-                  src={modelLogo2}
-                  alt="Logo"
-                  className="h-[60px] w-auto cursor-pointer"
-                />
+                <img src={modelLogo2} alt="Logo" className="h-[60px] w-auto cursor-pointer" />
               </span>
               <button className="login w-[15rem] h-[3.76rem] bg-white rounded-full text-lg font-semibold flex justify-evenly items-center transition duration-300 transform hover:scale-110">
-                <img
-                  src={githubLogo}
-                  alt="Github Logo"
-                  className="h-[25px] w-[25px]"
-                />
+                <img src={githubLogo} alt="Github Logo" className="h-[25px] w-[25px]" />
                 Login With Github
               </button>
             </div>
@@ -180,47 +169,28 @@ export default function HomePage() {
       {/* Main Content Section */}
       <main
         className={`mainContent h-[80rem] w-full flex flex-col mt-28 transform transition-all duration-1000 ease-out ${
-          isVisible ? "opacity-100" : "opacity-0"
+          isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         style={{ backgroundColor: '#e0f2f1' }} // Set background color
       >
         {/* Content Info */}
         {mainContentHolder.map((item: mainContentInfo, index: number) => (
-          <div
-            className="contentInfo flex justify-evenly items-center h-[25%]"
-            key={index}
-          >
+          <div className="contentInfo flex justify-evenly items-center h-[25%]" key={index}>
             {index % 2 === 0 ? (
               <>
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-[90%] w-auto bg-cover"
-                />
+                <img src={item.image} alt={item.title} className="h-[90%] w-auto bg-cover" />
                 <div className="textInfo h-[100%] w-[30%] flex flex-col justify-center items-center">
-                  <p className="text-2xl font-serif font-bold text-black pb-10">
-                    {item.title}
-                  </p>
-                  <p className="text-md font-sans text-black text-center">
-                    {item.description}
-                  </p>
+                  <p className="text-2xl font-serif font-bold text-black pb-10">{item.title}</p>
+                  <p className="text-md font-sans text-black text-center">{item.description}</p>
                 </div>
               </>
             ) : (
               <>
                 <div className="textInfo h-[100%] w-[30%] flex flex-col justify-center items-center">
-                  <p className="text-2xl font-serif font-bold text-black pb-10">
-                    {item.title}
-                  </p>
-                  <p className="text-md font-sans text-black text-center">
-                    {item.description}
-                  </p>
+                  <p className="text-2xl font-serif font-bold text-black pb-10">{item.title}</p>
+                  <p className="text-md font-sans text-black text-center">{item.description}</p>
                 </div>
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-[90%] w-auto bg-cover"
-                />
+                <img src={item.image} alt={item.title} className="h-[90%] w-auto bg-cover" />
               </>
             )}
           </div>
@@ -228,6 +198,6 @@ export default function HomePage() {
       </main>
 
       <Footer />
-    </div>
+    </>
   );
 }
