@@ -1,21 +1,3 @@
-<<<<<<< Updated upstream
-import { useState, useEffect, CSSProperties } from 'react';
-import githubLogo from '../assets/github-mark.png';
-import homeBack from '../assets/background-home.png';
-import setting from '../assets/settings.gif';
-import document from '../assets/document.gif';
-import cloudNet from '../assets/cloud-network.gif';
-import search from '../assets/search.gif';
-import manage from '../assets/manage.png';
-import automate from '../assets/automate.png';
-import generate from '../assets/generate.png';
-import openSource from '../assets/openSource.webp';
-import modelLogo2 from '../assets/modelLogo2.png';
-import Footer from './Footer';
-import { useNavigate } from 'react-router-dom';
-import useLoader from './customHooks/useLoader'; // Custom hook for handling loader state
-import DotLoader from 'react-spinners/DotLoader';
-=======
 import { useState, useEffect, CSSProperties } from "react";
 import githubLogo from "../assets/github-mark.png";
 import homeBack from "../assets/bg1.png";
@@ -33,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import useLoader from "./customHooks/useLoader"; // Custom hook for handling loader state
 import DotLoader from "react-spinners/DotLoader";
 import { useTransition, animated } from "react-spring";
->>>>>>> Stashed changes
 
 const override: CSSProperties = {
   display: "block",
@@ -66,44 +47,15 @@ export default function HomePage() {
   }
 
   const cardInfoHolder: cardAttribute[] = [
-<<<<<<< Updated upstream
-    { icon: setting, description: 'Real-time data insights and tracking' },
-    { icon: document, description: 'Proper & Advanced API Documentation' },
-    { icon: cloudNet, description: 'Open Source and Compatible' },
-    { icon: search, description: 'Advanced Searching and Routing Technique' },
-=======
     { icon: setting, description: "Real-time data tracking" },
     { icon: document, description: "Clear API documentation" },
     { icon: cloudNet, description: "Open-source and compatible" },
     { icon: search, description: "Advanced routing" },
->>>>>>> Stashed changes
   ];
 
   const mainContentHolder: mainContentInfo[] = [
     {
       image: manage,
-<<<<<<< Updated upstream
-      title: 'Manage',
-      description:
-        'Defining endpoints, managing data flow, and ensuring efficient interaction between the API and databases while maintaining security and performance',
-    },
-    {
-      image: automate,
-      title: 'Automate',
-      description:
-        'Streamlines repetitive tasks like API generation, testing, and deployment, improving efficiency and reducing manual effort. It enhances scalability and consistency across API workflows.',
-    },
-    {
-      image: generate,
-      title: 'Generate',
-      description: 'The automated creation of API endpoints, models, and documentation based on predefined schemas',
-    },
-    {
-      image: openSource,
-      title: 'Open Source',
-      description:
-        'Collaborative development, making the codebase freely available for modification and contribution. It fosters community involvement, innovation, and transparency, ensuring the project evolves with shared knowledge',
-=======
       title: "Centralized API Management",
       description:
         "Gain complete control over your API ecosystem with our centralized management platform. Easily monitor performance, track usage, and enforce security policies.",
@@ -125,7 +77,6 @@ export default function HomePage() {
       title: "Open Source",
       description:
         "Benefit from the power of community-driven development. Our open-source codebase is freely available for modification and contribution, fostering innovation and transparency.",
->>>>>>> Stashed changes
     },
   ];
 
@@ -136,22 +87,16 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
-<<<<<<< Updated upstream
-=======
   const imageSlideInLeft = "animate-slide-in-left";
   const imageSlideInRight = "animate-slide-in-right";
 
->>>>>>> Stashed changes
   return (
     <div style={{backgroundColor: "#e0f2f1"}}>
       <div
         className={`upSideHomePage relative h-[55rem] w-full transform transition-all duration-1000 ease-in-out ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
-<<<<<<< Updated upstream
-=======
         style={{ backgroundColor: "#e0f2f1" }} // Set background color
->>>>>>> Stashed changes
       >
         <div
           className="relative bg-cover bg-center h-[51rem] w-full"
@@ -180,11 +125,6 @@ export default function HomePage() {
 
           {/* Main Content */}
           <section className="h-[50%] w-full flex flex-col justify-center items-start px-56">
-<<<<<<< Updated upstream
-            <span className="text-6xl font-bold text-white font-sans py-4">Simple, Smart Automation</span>
-            <span className="text-5xl font-bold text-white font-sans py-4">API Generation Tool</span>
-            <div className='flex'>
-=======
             <span className="text-6xl font-bold text-white font-sans py-4">
               {" "}
               Streamline Your APIs with EazeAPI
@@ -193,7 +133,6 @@ export default function HomePage() {
               Effortless API Development
             </span>
             <div className="flex">
->>>>>>> Stashed changes
               {/* Get Started Button with loading logic */}
               <div className="navigate">
                 {loading && (
@@ -208,14 +147,6 @@ export default function HomePage() {
                     />
                   </div>
                 )}
-<<<<<<< Updated upstream
-                <button
-                  onClick={handleLoading}
-                  className="border-white border-2 w-[13rem] h-[3rem] text-white font-semibold font-sans rounded-full hover:bg-white hover:text-black my-4 mr-3"
-                >
-                  Get Started
-                </button>
-=======
                 <div className="flex flex-row justify-start">
                   <button
                     onClick={handleLoading}
@@ -232,7 +163,6 @@ export default function HomePage() {
                     </button>
                   </a>
                 </div>
->>>>>>> Stashed changes
               </div>
               <a href="https://github.com/Vedant794/RESTGenius" target="_blank">
                 <button className="border-white border-2 w-[15rem] h-[3rem] text-white font-semibold font-sans rounded-full hover:bg-white hover:text-black my-4 ml-3">
@@ -250,17 +180,12 @@ export default function HomePage() {
                 className="cardInfo bg-white h-[80%] w-[16rem] flex flex-col items-center justify-evenly mx-3 rounded-xl shadow-2xl transition duration-300 transform hover:scale-110"
                 key={index}
               >
-<<<<<<< Updated upstream
-                <img src={element.icon} alt={element.description} className="h-[100px] w-[100px]" />
-                <p className="description text-xl font-serif font-semibold text-black text-center">
-=======
                 <img
                   src={element.icon}
                   alt={element.description}
                   className="h-[100px] w-[100px]"
                 />
                 <p className="description text-xl font-serif font-bold text-black text-center">
->>>>>>> Stashed changes
                   {element.description}
                 </p>
               </div>
@@ -274,10 +199,7 @@ export default function HomePage() {
         className={`mainContent h-[80rem] w-full flex flex-col mt-28 transform transition-all duration-1000 ease-out ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
-<<<<<<< Updated upstream
-=======
         style={{ backgroundColor: "#e0f2f1" }} // Set background color
->>>>>>> Stashed changes
       >
         {/* Content Info */}
         {mainContentHolder.map((item: mainContentInfo, index: number) => (
