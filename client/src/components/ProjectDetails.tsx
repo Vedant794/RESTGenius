@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import useProjectName, { projectNameContext } from "./context/projectNameContext";
 import useSchema from "./context/schemaContext";
 import axios from "axios";
+import Navbar from "./Navbar";
+import GetStarted from "./GetStarted";
 
 export default function ProjectDetails() {
   const [selectOrm, setSelectOrm] = useState("");
@@ -18,7 +20,7 @@ export default function ProjectDetails() {
   const {schemas} = useSchema()
 
   useEffect(() => {
-    const storedData = sessionStorage.getItem("formData");
+    const storedData = localStorage.getItem("formData");
     if (storedData) {
       const { projectName, selectOrm, mongoUri, port } = JSON.parse(storedData);
       setProjectName(projectName || "");
@@ -50,14 +52,6 @@ export default function ProjectDetails() {
     mongoUri: string;
     port?: number;
   }
-
-  const handleSchemaNavigation = () => {
-    if(validate){
-      saveFormData();
-      navigate('/getstarted/customSchema');
-
-    }
-  };
   
   const checkValidation=()=>{
     if(projectName.length<=0){
@@ -71,6 +65,7 @@ export default function ProjectDetails() {
   const sendToBAckend=async()=>{
     try {
       console.log(projectName)
+      saveFormData()
       axios.post('http://localhost:3000/backend/createProject',{projectName,schemas})
     } catch (error) {
       console.error(error)
@@ -87,22 +82,26 @@ export default function ProjectDetails() {
     };
 
     // Store the data in sessionStorage
-    sessionStorage.setItem("formData", JSON.stringify(userInput));
+    localStorage.setItem("formData", JSON.stringify(userInput));
 
     // For debugging, you can log it or do something else
     console.log("Form Data Saved:", userInput);
   };
 
   return (
+    <div className="overflow-y-hidden">
+    
     <projectNameContext.Provider value={{projectName,setProjectName}}>
-    <div className="flex justify-center items-center overflow-y-hidden">
-      <div className={`detailForm h-[78%] w-[40%] p-10 shadow-custom-heavy rounded-sm ${mode ? 'bg-white' : 'shadow-black'}`}>
+      <Navbar/>
+      <GetStarted/>
+    <div className="flex justify-center items-center -mt-[94vh] ml-10">
+      <div className={`detailForm h-[78%] w-[35%] p-10 shadow-custom-heavy rounded-sm ${mode ? 'bg-white' : 'shadow-black'} flex justify-center items-center`}>
         <form
           action=""
           className="projectForm flex flex-col justify-center"
           onSubmit={(e) => {
             e.preventDefault();
-            handleSchemaNavigation();
+            checkValidation()
           }}
         >
           <div className="name flex flex-col justify-center">
@@ -159,7 +158,7 @@ export default function ProjectDetails() {
           <div className="btns">
             <button
               type="submit"
-              onClick={()=>{checkValidation(); sendToBAckend();}}
+              onClick={sendToBAckend}
               className="h-[3rem] w-[7rem] shadow-lg rounded-xl mt-8 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110"
             >
               Next
@@ -169,5 +168,6 @@ export default function ProjectDetails() {
       </div>
     </div>
     </projectNameContext.Provider>
+    </div>
   );
 }

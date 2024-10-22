@@ -14,6 +14,7 @@ import { RelationContextProvider } from './components/context/relationContext';
 import PreviewCode from './components/PreviewCode';
 import { ProjectNameContextProvider } from './components/context/projectNameContext';
 import { SchemaIndexProvider } from './components/context/SchemaIndex';
+import Introduction from './components/introduction';
 
 
 function App() {
@@ -54,11 +55,12 @@ const [ind,setIndex] = useState(-1)
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<HomePage/>}></Route>
-        <Route path='/getstarted' element={<GetStarted/>}></Route>
+        {/* <Route path='/getstarted' element={<GetStarted/>}></Route> */}
+        <Route path='/getstarted' element={<Introduction/>}></Route>
         <Route path='/getstarted/projectDetails' element={<ProjectDetails/>}></Route>
         <Route path='/getstarted/customSchema' element={<CustomSchema/>}></Route>
-        <Route path='/getstarted/customSchema/routes' element={<CreateRoute/>}></Route>
-        <Route path='/getstarted/customSchema/routes/relation' element={<CreateRelations/>}></Route>
+        <Route path='/getstarted/routes' element={<CreateRoute/>}></Route>
+        <Route path='/getstarted/relation' element={<CreateRelations/>}></Route>
         <Route path='/getstarted/previewCustomization' element={<PreviewCode/>}></Route>
       </Routes>
     </BrowserRouter>

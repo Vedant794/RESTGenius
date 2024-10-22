@@ -8,7 +8,8 @@ function PreviewCode() {
 
   const handlePreview=async()=>{
     try {
-      const response = await axios.get(`http://localhost:3000/backend/getProjectData/next`)
+      const response = await axios.get(`http://localhost:3000/backend/getProjectData/${projectName}`)
+      // const springResponse=await axios.post('http://localhost:8000/generateEntity',response.data)
       setPreview(response.data)
     } catch (error) {
       console.error(error)
@@ -20,7 +21,7 @@ function PreviewCode() {
   },[])
 
   return (
-    <pre>{JSON.stringify(preview)}</pre>
+    <pre>{JSON.stringify({preview},null,2)}</pre>
   )
 }
 

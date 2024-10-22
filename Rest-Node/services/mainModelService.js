@@ -83,41 +83,69 @@ export const addRouteToSchema = async (projectName, schemaName, newRoute) => {
     if (schemaIndex === -1) {
       throw new Error(`Schema with name ${schemaName} not found.`);
     }
-    
-    project.schemas[schemaIndex].routes.push(newRoute);
+
+    if(newRoute.routes && newRoute.routes.length>0){
+      newRoute.routes.forEach(routes=>{
+        project.schemas[schemaIndex].routes.push(routes)
+      })
+    } else {
+      throw new Error('No Routes found in request data.');
+    }
     const updatedProject = await project.save();
     
     console.log(`Route added successfully to ${schemaName}:`, newRoute);
     return updatedProject;
   };
 
-  export const addRelationToSchema = async (projectName, schemaName, newRelation) => {
+  export const addRelationToSchema = async (projectName, schemaName, newRelationData) => {
     const project = await findProjectByName(projectName);
+    
     if (!project.schemas || !Array.isArray(project.schemas)) {
       throw new Error('No schemas found for this project');
     }
-  
+    
     const schemaIndex = project.schemas.findIndex(schema => schema.schema_name === schemaName);
     
     if (schemaIndex === -1) {
       throw new Error(`Schema with name ${schemaName} not found.`);
     }
+    console.log(newRelationData)
+    if (newRelationData.relation && newRelationData.relation.length > 0) {
+      newRelationData.relation.forEach(relation => {
+        project.schemas[schemaIndex].relation.push(relation);
+      });
+    } else {
+      throw new Error('No Relations found in request data.');
+    }
+  
+    // Save the updated project
+    const updatedProject = await project.save({ runValidators: true });
     
-    project.schemas[schemaIndex].relations.push(newRelation);
-    const updatedProject = await project.save();
-    
-    console.log(`Route added successfully to ${schemaName}:`, newRelation);
+    console.log(`Relations added successfully to ${schemaName}:`, newRelationData.relation);
     return updatedProject;
-  }
+  };
+  
 
-  export const addSchemaToProject = async (projectName,newSchema) =>{
+  export const addSchemaToProject = async (projectName, newSchemaData) => {
     const project = await findProjectByName(projectName);
     if (!project) {
       throw new Error(`Project with name '${projectName}' not found`);
     }
-    project.schemas.push(newSchema);
-    const updatedProject = await project.save()
-    console.log(`Schema is added in ${projectName}:`,newSchema);
-    return updatedProject
-  }
+  
+    // Check if 'schemas' array exists in newSchemaData and contains at least one schema
+    if (newSchemaData.schemas && newSchemaData.schemas.length > 0) {
+      // Push each schema in 'schemas' array to the project.schemas array
+      newSchemaData.schemas.forEach(schema => {
+        project.schemas.push(schema);
+      });
+    } else {
+      throw new Error('No schemas found in request data.');
+    }
+  
+    // Save the updated project with the new schema(s)
+    const updatedProject = await project.save({ runValidators: true });
+    console.log(`Schema is added in ${projectName}:`, newSchemaData.schemas);
+    return updatedProject;
+  };
+  
   

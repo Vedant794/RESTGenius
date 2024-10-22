@@ -27,11 +27,17 @@ const routeSchema = new mongoose.Schema({
 
 // Define the schema for relations within each schema
 const relationSchema = new mongoose.Schema({
-  schema: { type: String, required: false, default: "" },  // Default empty string
-  target: { type: String, required: false, default: "" },  // Default empty string
-  lazyLoad: { type: Boolean, default: null },  // Default null if not provided
-  type: { type: String, required: false, default: "" }  // Default empty string
+  schema: { type: String, required: false, default: "" },  // Required
+  target: { type: String, required: false, default: "" },  // Required
+  lazyLoad: { type: Boolean, default: false },  // Default to false
+  type: { 
+    type: String, 
+    required: true, 
+    enum: ['one-to-one', 'one-to-many'],  // Only allow specific types
+    default: 'one-to-one'  // Default type
+  }
 });
+
 
 // Define the schema for each individual schema
 const schemaSchema = new mongoose.Schema({
@@ -39,7 +45,7 @@ const schemaSchema = new mongoose.Schema({
   schema_dbname: { type: String, required: false },  // Default empty string
   attributes: [attributeSchema],
   routes: [routeSchema],
-  relations: [relationSchema]
+  relation: [relationSchema]
 });
 
 // Define the Project schema

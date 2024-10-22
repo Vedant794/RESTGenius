@@ -4,6 +4,8 @@ import { FaCode, FaDatabase, FaServer } from "react-icons/fa";
 import { GiBrain, GiShuriken } from "react-icons/gi";
 import { MdApi } from "react-icons/md";
 import { AnimatePresence } from "framer-motion";
+import GetStarted from "./GetStarted";
+import Navbar from "./Navbar";
 
 interface Slide {
   title: string;
@@ -62,13 +64,16 @@ const Introduction: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="overflow-x-hidden">
+    <Navbar/>
+    <GetStarted/>
+    <div className="container -mt-[99vh] ml-[14.8rem] px-4 py-8">
       <motion.div
         initial="hidden"
         animate={showContent ? "visible" : "hidden"}
         variants={variants}
         transition={{ delay: 0.5 }}
-        className="bg-white rounded-lg shadow-xl p-6 text-center"
+        className="bg-white p-6 text-center"
       >
         <h1 className="text-3xl font-bold mb-4 text-blue-600">API Architect</h1>
         <AnimatePresence mode="wait">
@@ -218,6 +223,7 @@ const Introduction: React.FC = () => {
           </ul>
         </motion.div>
       </motion.div>
+    </div>
     </div>
   );
 };
