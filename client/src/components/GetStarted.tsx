@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useTheme from './context/ModeContext';
-<<<<<<< Updated upstream
-import Navbar from './Navbar';
-=======
->>>>>>> Stashed changes
 
 export default function GetStarted() {
   const { mode } = useTheme();
@@ -20,12 +16,7 @@ export default function GetStarted() {
   const customizeOptions: Options[] = [
     { 
       name: "intro", 
-<<<<<<< Updated upstream
-      text: "Introduction", 
-      content:<></>, 
-=======
       text: "Introduction",
->>>>>>> Stashed changes
       link: "/getstarted"
     },
     { 
