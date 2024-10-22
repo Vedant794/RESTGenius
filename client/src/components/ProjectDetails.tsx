@@ -53,12 +53,14 @@ export default function ProjectDetails() {
     port?: number;
   }
   
-  const checkValidation=()=>{
+  const checkValidation=async()=>{
     if(projectName.length<=0){
       setValidate(false)
     }
     else{
       setValidate(true)
+      await sendToBAckend()
+      navigate('/getstarted/customSchema')
     }
   }
 
@@ -158,7 +160,6 @@ export default function ProjectDetails() {
           <div className="btns">
             <button
               type="submit"
-              onClick={sendToBAckend}
               className="h-[3rem] w-[7rem] shadow-lg rounded-xl mt-8 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110"
             >
               Next
