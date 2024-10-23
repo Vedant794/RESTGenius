@@ -78,7 +78,10 @@ const handlePreview = async () => {
     // <pre>{JSON.stringify({preview},null,2)}</pre>
     <>
       <Navbar/>
+      <div className="preview h-auto overflow-y-hidden ">
       {preview && <PreviewCodeAside preview={preview}/>}
+
+      </div>
       
       
     </>

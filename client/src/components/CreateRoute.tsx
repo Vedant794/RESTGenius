@@ -104,6 +104,7 @@ function CreateRoute() {
     const routeData=routes
 
     localStorage.setItem("RoutesData",JSON.stringify(routeData))
+    alert(`Your Routes for ${schemaName} Schema has been added`)
   }
 
   const handleRoutesToBackend=async()=>{
@@ -139,7 +140,7 @@ function CreateRoute() {
             onChange={(e)=>{
               handleSchemaName(e.target.value)
             }}
-            className="w-[27rem] p-2 ml-6 focus:outline-none border-b-2 border-black"
+            className={`w-[27rem] p-2 ml-6 focus:outline-none border-b-2  ${mode ? 'border-black' : 'border-white bg-[#282929] text-white'}`}
             />
 
           </div>

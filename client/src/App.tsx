@@ -1,6 +1,5 @@
 // import React from 'react'
 import HomePage from './components/HomePage'
-import GetStarted from './components/GetStarted'
 import { BrowserRouter,Routes,Route } from "react-router-dom";
 import ProjectDetails from './components/ProjectDetails';
 import CustomSchema from './components/CustomSchema';
@@ -15,6 +14,7 @@ import PreviewCode from './components/PreviewCode';
 import { ProjectNameContextProvider } from './components/context/projectNameContext';
 import { SchemaIndexProvider } from './components/context/SchemaIndex';
 import Introduction from './components/introduction';
+import EditorComponent from './components/AceEditor';
 
 
 function App() {
@@ -42,6 +42,7 @@ const [schemas, setSchemas] = useState<any[]>([]);
 const [routes, setRoutes] = useState<any[]>([]);
 const [relation, setRelation] = useState<any[]>([]);
 const [projectName,setProjectName]=useState("")
+const [code,setCode] = useState("")
 const [ind,setIndex] = useState(-1)
 
 
@@ -62,6 +63,7 @@ const [ind,setIndex] = useState(-1)
         <Route path='/getstarted/routes' element={<CreateRoute/>}></Route>
         <Route path='/getstarted/relation' element={<CreateRelations/>}></Route>
         <Route path='/getstarted/previewCustomization' element={<PreviewCode/>}></Route>
+        <Route path='/getstarted/AceEditor' element={<EditorComponent code={code} setCode={setCode} lang='java'/>}></Route>
       </Routes>
     </BrowserRouter>
     </SchemaIndexProvider>

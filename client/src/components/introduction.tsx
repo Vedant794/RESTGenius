@@ -6,6 +6,7 @@ import { MdApi } from "react-icons/md";
 import { AnimatePresence } from "framer-motion";
 import GetStarted from "./GetStarted";
 import Navbar from "./Navbar";
+import useTheme from "./context/ModeContext";
 
 interface Slide {
   title: string;
@@ -18,6 +19,7 @@ const Introduction: React.FC = () => {
   const [showContent, setShowContent] = useState(false);
   const [showCodeSample, setShowCodeSample] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
+  const {mode} = useTheme()
 
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 1000);
@@ -67,15 +69,15 @@ const Introduction: React.FC = () => {
     <div className="overflow-x-hidden">
     <Navbar/>
     <GetStarted/>
-    <div className="container -mt-[99vh] ml-[14.8rem] px-4 py-8">
+    <div className={`container -mt-[99vh] ml-[14.8rem] px-4 py-8`}>
       <motion.div
         initial="hidden"
         animate={showContent ? "visible" : "hidden"}
         variants={variants}
         transition={{ delay: 0.5 }}
-        className="bg-white p-6 text-center"
+        className={`p-6 text-center ${mode ? 'bg-white' : 'bg-[#202725]'}`}
       >
-        <h1 className="text-3xl font-bold mb-4 text-blue-600">API Architect</h1>
+        <h1 className="text-3xl font-bold mb-4 text-blue-500">API Architect</h1>
         <AnimatePresence mode="wait">
           <motion.section
             key={slideIndex}
@@ -85,8 +87,8 @@ const Introduction: React.FC = () => {
             variants={variants}
             transition={{ delay: 0.75 }}
           >
-            <h2 className="text-2xl font-semibold mb-2 text-gray-800">{slides[slideIndex].title}</h2>
-            <p className="mb-4 text-gray-600">{slides[slideIndex].description}</p>
+            <h2 className={`text-2xl font-semibold mb-2 ${mode ? 'text-gray-800' : 'text-gray-300'}`}>{slides[slideIndex].title}</h2>
+            <p className={`mb-4  ${mode ? 'text-gray-600' : 'text-gray-100'}`}>{slides[slideIndex].description}</p>
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -107,7 +109,7 @@ const Introduction: React.FC = () => {
             animate={showContent ? "visible" : "hidden"}
             variants={variants}
             transition={{ delay: 1 }}
-            className="flex items-center justify-center bg-gray-100 p-4 rounded-lg"
+            className={`flex items-center justify-center  ${mode ? 'bg-gray-100' : 'bg-[#202725] shadow-lg shadow-black'} p-4 rounded-lg`}
           >
             <FaDatabase className="text-4xl text-green-400 mr-2" />
             <span className="font-medium">100% RESTful</span>
@@ -117,7 +119,7 @@ const Introduction: React.FC = () => {
             animate={showContent ? "visible" : "hidden"}
             variants={variants}
             transition={{ delay: 1.25 }}
-            className="flex items-center justify-center bg-gray-100 p-4 rounded-lg"
+            className={`flex items-center justify-center  ${mode ? 'bg-gray-100' : 'bg-[#202725] shadow-lg shadow-black'} p-4 rounded-lg`}
           >
             <GiBrain className="text-4xl text-yellow-400 mr-2" />
             <span className="font-medium">Smart Defaults</span>
@@ -127,7 +129,7 @@ const Introduction: React.FC = () => {
             animate={showContent ? "visible" : "hidden"}
             variants={variants}
             transition={{ delay: 1.5 }}
-            className="flex items-center justify-center bg-gray-100 p-4 rounded-lg"
+            className={`flex items-center justify-center  ${mode ? 'bg-gray-100' : 'bg-[#202725] shadow-lg shadow-black'} p-4 rounded-lg`}
           >
             <MdApi className="text-4xl text-purple-400 mr-2" />
             <span className="font-medium">API First</span>
@@ -140,7 +142,7 @@ const Introduction: React.FC = () => {
           animate={showCodeSample ? "visible" : "hidden"}
           variants={variants}
           transition={{ delay: 1.75 }}
-          className="mt-8 bg-gray-100 p-4 rounded-lg"
+          className={`mt-8 ${mode ? 'bg-gray-100' : 'bg-[#202725] shadow-lg shadow-black'} p-4 rounded-lg `}
         >
           <h3 className="text-xl font-semibold mb-2 text-gray-800">Generated API Code Sample</h3>
           <pre className="overflow-x-auto border-l-2 border-gray-300 pr-4">
@@ -160,10 +162,10 @@ const Introduction: React.FC = () => {
           <motion.div
             variants={variants}
             transition={{ delay: 2.25 }}
-            className="bg-white rounded-lg shadow-md p-4 text-center"
+            className={`shadow-lg ${mode ? 'bg-white' : 'bg-[#202725] shadow-black'} rounded-lg p-4 text-center`}
           >
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">API Schema</h3>
-            <p className="mb-4 text-gray-600">Define your RESTful service using a user-friendly JSON structure.</p>
+            <h3 className={`text-xl font-semibold mb-2 ${mode ? 'text-gray-800' : 'text-gray-300'}`}>API Schema</h3>
+            <p className={`mb-4 ${mode ? 'text-gray-600' : 'text-gray-100'}`}>Define your RESTful service using a user-friendly JSON structure.</p>
             <ul className="space-y-2">
               <li className="flex items-center"><FaServer className="text-2xl text-blue-500 mr-2" /> RESTful Architecture</li>
               <li className="flex items-center"><FaDatabase className="text-2xl text-green-500 mr-2" /> Data Modeling</li>
@@ -173,10 +175,10 @@ const Introduction: React.FC = () => {
           <motion.div
             variants={variants}
             transition={{ delay: 2.5 }}
-            className="bg-white rounded-lg shadow-md p-4 text-center"
+            className={`shadow-lg ${mode ? 'bg-white' : 'bg-[#202725] shadow-black'} rounded-lg p-4 text-center`}
           >
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Smart Defaults</h3>
-            <p className="mb-4 text-gray-600">Encourages thoughtful API design with simplified complex setups.</p>
+            <h3 className={`text-xl font-semibold mb-2 ${mode ? 'text-gray-800' : 'text-gray-300'}`}>Smart Defaults</h3>
+            <p className={`mb-4 ${mode ? 'text-gray-600' : 'text-gray-100'}`}>Encourages thoughtful API design with simplified complex setups.</p>
             <ul className="space-y-2">
               <li className="flex items-center"><FaCode className="text-2xl text-green-500 mr-2" /> Auto-generated Documentation</li>
               <li className="flex items-center"><GiBrain className="text-2xl text-yellow-400 mr-2" /> Intelligent Suggestions</li>
@@ -186,10 +188,10 @@ const Introduction: React.FC = () => {
           <motion.div
             variants={variants}
             transition={{ delay: 2.75 }}
-            className="bg-white rounded-lg shadow-md p-4 text-center"
+            className={`shadow-lg ${mode ? 'bg-white' : 'bg-[#202725] shadow-black'} rounded-lg p-4 text-center`}
           >
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Native SDKs</h3>
-            <p className="mb-4 text-gray-600">Intuitive and lightweight SDKs with minimal dependencies.</p>
+            <h3 className={`text-xl font-semibold mb-2 ${mode ? 'text-gray-800' : 'text-gray-300'}`}>Native SDKs</h3>
+            <p className={`mb-4 ${mode ? 'text-gray-600' : 'text-gray-100'}`}>Intuitive and lightweight SDKs with minimal dependencies.</p>
             <ul className="space-y-2">
               <li className="flex items-center"><FaDatabase className="text-2xl text-blue-500 mr-2" /> Database Integration</li>
               <li className="flex items-center"><GiShuriken className="text-2xl text-red-500 mr-2" /> Security Features</li>
@@ -204,21 +206,21 @@ const Introduction: React.FC = () => {
           animate={showContent ? "visible" : "hidden"}
           variants={variants}
           transition={{ delay: 2.25 }}
-          className="mt-8 bg-white rounded-lg shadow-md p-4 text-center"
+          className={`mt-8  ${mode ? 'bg-white' : 'bg-[#202725] shadow-black'} rounded-lg shadow-lg p-4 text-center`}
         >
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-800">Stats</h2>
+                    <h2 className={`text-2xl font-semibold mb-4 ${mode ? 'text-gray-800' : 'text-gray-300'}`}>Stats</h2>
           <ul className="space-y-4">
             <li className="flex flex-col items-center">
               <span className="text-4xl font-bold text-blue-500">{1000 + Math.floor(Math.random() * 900)}</span>
-              <span className="text-sm text-gray-600">APIs Generated Daily</span>
+              <span className="text-sm ${mode ? 'text-gray-600' : 'text-gray-100'}">APIs Generated Daily</span>
             </li>
             <li className="flex flex-col items-center">
               <span className="text-4xl font-bold text-green-500">{5000 + Math.floor(Math.random() * 4000)}</span>
-              <span className="text-sm text-gray-600">Developers Worldwide</span>
+              <span className="text-sm ${mode ? 'text-gray-600' : 'text-gray-100'}">Developers Worldwide</span>
             </li>
             <li className="flex flex-col items-center">
               <span className="text-4xl font-bold text-purple-500">{200 + Math.floor(Math.random() * 100)}</span>
-              <span className="text-sm text-gray-600">Integrations Supported</span>
+              <span className="text-sm ${mode ? 'text-gray-600' : 'text-gray-100'}">Integrations Supported</span>
             </li>
           </ul>
         </motion.div>
