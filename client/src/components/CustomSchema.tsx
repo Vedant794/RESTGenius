@@ -13,7 +13,6 @@ export default function CustomSchema() {
   const {schemas, setSchemas} = useSchema();
   const {mode} = useTheme()
   const {ind,setIndex} = useSchemaIndex()
-  const [alert,setAlert] = useState(false)
 
   const {projectName} = useProjectName()
 
@@ -184,6 +183,10 @@ export default function CustomSchema() {
       console.error("Error adding schema to backend:", error);
     }
   };
+
+  const handleSetAlert=()=>{
+    alert('Your Schema has been added you can create more or move further')
+  }
   
   // console.log(schemas)
   // console.log(projectName)
@@ -197,9 +200,6 @@ export default function CustomSchema() {
     <div className="container mx-auto my-[13vh] p-4 -mt-[95vh] ml-60">
       <div className="flex justify-between">
       <h1 className="text-2xl font-bold mb-4">Create Your Custom Schema</h1>
-      <div className={`alertBox w-auto h-auto px-2 py-2 bg-blue-500 rounded-xl text-white font-sans font-medium`}>
-        Your Custom Schema is added you can proceed further
-      </div>
 
       </div>
 
@@ -221,7 +221,9 @@ export default function CustomSchema() {
            action=""
            className="schemaForm"
            onSubmit={(e)=>{
+            e.preventDefault()
             handleSubmit(e,schemaIndex)
+            handleSetAlert()
            }}
           
       >

@@ -38,6 +38,11 @@ export default function GetStarted() {
       name: "relation",
       text: "Create Relations",
       link: "/getstarted/relation"
+    },
+    {
+      name:"Ace",
+      text:"Ace Editor",
+      link:'/getstarted/AceEditor'
     }
   ];
 

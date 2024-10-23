@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import EditorComponent from './AceEditor';
+import useTheme from './context/ModeContext';
 
 type File = {
   filename: string;
@@ -13,6 +15,8 @@ type OutputDTO = {
   controllerFiles: File[];
 };
 
+
+
 interface FileObject {
   filename: string;
   content: string;
@@ -24,13 +28,26 @@ interface Folder {
 }
 
 const transformDataToTree = (data: any) => {
-  return Object.keys(data).map(key => ({
-    name: key,
-    files: data[key].map((file: any) => ({
-      filename: file.filename,
-      content: file.content,
-    })),
-  }));
+  return Object.keys(data).map(key => {
+    const seenFilenames = new Set<string>();
+
+    const uniqueFiles = data[key].filter((file: any) => {
+      const normalizedFilename = file.filename.toLowerCase();
+      if (seenFilenames.has(normalizedFilename)) {
+        return false;
+      }
+      seenFilenames.add(normalizedFilename);
+      return true;
+    });
+
+    return {
+      name: key,
+      files: uniqueFiles.map((file: any) => ({
+        filename: file.filename,
+        content: file.content,
+      })),
+    };
+  });
 };
 
 const FileTree: React.FC<{ tree: Folder[], onSelectFile: (content: string, filename: string) => void; selectedFile: string | null }> = ({ tree, onSelectFile, selectedFile }) => {
@@ -45,31 +62,39 @@ const FileTree: React.FC<{ tree: Folder[], onSelectFile: (content: string, filen
 
 const FileNode: React.FC<{ name: string; files: FileObject[]; onSelectFile: (content: string, filename: string) => void; selectedFile: string | null }> = ({ name, files, onSelectFile, selectedFile }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const toggleFolder = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleFolder = () => setIsOpen(!isOpen);
+  const {mode} = useTheme()
+  const seenFilenames = new Set<string>();
 
   return (
     <li className='mb-5'>
-      <span onClick={toggleFolder} className='cursor-pointer text-lg font-mono font-medium'>
+      <span onClick={toggleFolder} className='cursor-pointer text-lg font-custom-font font-medium'>
         {isOpen ? '📂' : '📁'} {name}
       </span>
       {isOpen && (
         <ul style={{ paddingLeft: '20px' }}>
-          {files.map((file, index) => (
-            <li
-              key={index}
-              onClick={() => onSelectFile(file.content, file.filename)}
-              style={{
-                cursor: 'pointer',
-                fontWeight: selectedFile === file.filename ? 'bold' : 'normal',
-                backgroundColor: selectedFile === file.filename ? '#d1e7dd' : 'transparent',
-              }}
-            >
-              📄 {file.filename}
-            </li>
-          ))}
+          {files.map((file, index) => {
+            const normalizedFilename = file.filename.toLowerCase();
+            if (seenFilenames.has(normalizedFilename)) {
+              return null;
+            }
+            seenFilenames.add(normalizedFilename);
+
+            return (
+              <li
+                key={index}
+                onClick={() => onSelectFile(file.content, file.filename)}
+                style={{
+                  cursor: 'pointer',
+                  fontWeight: selectedFile === file.filename ? 'medium' : 'normal',
+                  backgroundColor: selectedFile === file.filename ? `${mode?'#d1e7dd':'#565656'}` : 'transparent',
+                }}
+                className={`font-custom-font mt-2`}
+              >
+                📄 {file.filename}.java
+              </li>
+            );
+          })}
         </ul>
       )}
     </li>
@@ -80,26 +105,53 @@ const PreviewCodeAside: React.FC<{ preview: OutputDTO | undefined }> = ({ previe
   const tree = transformDataToTree(preview);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
+  const {mode} = useTheme()
+  const handleCopy = () => {
+    console.log("hii")
+    if (fileContent) {
+      navigator.clipboard.writeText(fileContent)
+        .then(() => {
+          alert('Content copied to clipboard!');
+        })
+        .catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+    } else {
+      alert('No content to copy!');
+    }
+  };
+  
 
   const handleSelectFile = (content: string, filename: string) => {
-    setFileContent(content);  // Store file content for preview
-    setSelectedFile(filename); // Track the currently selected file
+    setFileContent(content);
+    setSelectedFile(filename);
   };
 
   return (
-    <div className='mt-[13vh] flex justify-between h-screen w-auto'>
-      <aside className='side-navBar h-[88vh] w-[16vw] fixed flex flex-col items-center justify-between bg-slate-100'>
+    <div className='mt-[13vh] h-screen w-auto'>
+      <aside className={`side-navBar h-[88vh] w-[16vw] fixed flex flex-col items-center justify-between  ${mode ? 'bg-slate-100' : 'bg-[#323939] text-white'}`}>
         <FileTree tree={tree} onSelectFile={handleSelectFile} selectedFile={selectedFile} />
       </aside>
 
-      <main className='ml-[65vh]'>
-        {/* Display only the selected file's content */}
+      <main className='ml-[30vh] mt-[10vh] h-auto w-[80vw] pt-6'>
         {fileContent && (
-          <div style={{ marginTop: '10px', paddingLeft: '20px', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
-            {/* <h4>{fileName}</h4> */}
-            <pre>{fileContent}</pre>
+          <div className='ml-[9vw] '>
+            <EditorComponent code={fileContent} setCode={setFileContent} lang='java'/>
           </div>
         )}
+        <div className="but ml-[9vw] flex justify-evenly items-center mt-2">
+          <button
+           className='w-auto h-auto px-7 py-3 bg-green-500 rounded-xl text-xl font-custom-font text-white shadow-lg'
+           >
+            Download
+          </button>
+          <button
+           className='w-auto h-auto px-5 py-3 bg-blue-600 rounded-xl text-lg font-custom-font text-slate-100 shadow-lg'
+            onClick={handleCopy}
+            >
+              Copy
+            </button>
+        </div>
       </main>
     </div>
   );

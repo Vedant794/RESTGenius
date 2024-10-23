@@ -31,7 +31,7 @@ function CreateRelations() {
         schema: "",
         target: "",
         lazyLoad: false,  // Default boolean value
-        type: "one-to-one", // Default type
+        type: "one-to-one" // Default type
       },
     ]);
   };
@@ -70,7 +70,7 @@ function CreateRelations() {
         `http://localhost:3000/backend/addRelation/${projectName}/${schemaName}`,
         { relation }
       );
-      // console.log(response.data);
+      console.log(response.status);
     } catch (error) {
       console.error("Error adding relation to backend:", error);
     }
@@ -107,7 +107,7 @@ function CreateRelations() {
               type="text"
               placeholder="Enter Schema name for Which you want to make Relations"
               onChange={(e) => handleSchemaName(e.target.value)}
-              className="w-[27rem] p-2 ml-6 focus:outline-none border-b-2 border-black"
+              className={`w-[27rem] p-2 ml-6 focus:outline-none border-b-2  ${mode ? 'border-black' : 'border-white bg-[#282929] text-white'}`}
             />
           </div>
           <div className="back flex justify-between items-center">
@@ -145,7 +145,7 @@ function CreateRelations() {
                 <select
                   value={relation.lazyLoad.toString()} // Convert boolean to string
                   onChange={(e) => handleLazyLoadChange(relationInd, e.target.value === 'true')}
-                  className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
+                  className={`w-[70%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
                 >
                   <option value="true">True</option>
                   <option value="false">False</option>
@@ -157,7 +157,7 @@ function CreateRelations() {
                 <select
                   value={relation.type}
                   onChange={(e) => handleTypeChange(relationInd, e.target.value)}
-                  className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
+                  className={`w-[70%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? 'bg-white' : 'bg-[#282929] shadow-black'} focus:outline-none`}
                 >
                   <option value="one-to-one">One-to-One</option>
                   <option value="one-to-many">One-to-Many</option>
