@@ -7,15 +7,12 @@ export const deleteTempFiles=async(dir)=> {
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        await deleteTempFiles(fullPath);
-        await fs.promises.rmdir(fullPath); // Delete the empty subdirectory
+        await deleteTempFiles(fullPath); //Deleted feature
       } else {
         await fs.promises.unlink(fullPath); // Delete the file
       }
     }
-
     await fs.promises.rmdir(dir);
-    
   } catch (error) {
     console.error(`Error while deleting files: ${error.message}`);
   }
