@@ -7,7 +7,7 @@ export const deleteTempFiles=async(dir)=> {
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        await deleteTempFiles(fullPath);
+        await deleteTempFiles(fullPath); //Deleted feature
       } else {
         await fs.promises.unlink(fullPath); // Delete the file
       }
