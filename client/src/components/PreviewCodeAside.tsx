@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import EditorComponent from './AceEditor';
 import useTheme from './context/ModeContext';
+import axios from 'axios';
 
 type File = {
   filename: string;
@@ -107,7 +108,6 @@ const PreviewCodeAside: React.FC<{ preview: OutputDTO | undefined }> = ({ previe
   const [fileContent, setFileContent] = useState<string | null>(null);
   const {mode} = useTheme()
   const handleCopy = () => {
-    console.log("hii")
     if (fileContent) {
       navigator.clipboard.writeText(fileContent)
         .then(() => {
@@ -120,6 +120,36 @@ const PreviewCodeAside: React.FC<{ preview: OutputDTO | undefined }> = ({ previe
       alert('No content to copy!');
     }
   };
+  
+  console.log(tree)
+  const handleDownload = async () => {
+    try {
+      await axios.post('http://localhost:3000/nodeorm/customCode/sendtobackend',tree);
+
+      const response = await axios({
+        url: 'http://localhost:3000/nodeorm/customCode/getZipJavaCode',
+        method: 'GET',
+        responseType: 'blob', // important to handle the file as a blob
+      });
+  
+      // Create a URL for the blob and simulate a download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'code.zip'); // specify the file name
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+  
+      // Show the alert after the file download
+      alert('Files Downloaded Successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to download files');
+    }
+  };
+  
+  
   
 
   const handleSelectFile = (content: string, filename: string) => {
@@ -142,6 +172,7 @@ const PreviewCodeAside: React.FC<{ preview: OutputDTO | undefined }> = ({ previe
         <div className="but ml-[9vw] flex justify-evenly items-center mt-2">
           <button
            className='w-auto h-auto px-7 py-3 bg-green-500 rounded-xl text-xl font-custom-font text-white shadow-lg'
+           onClick={handleDownload}
            >
             Download
           </button>
@@ -151,6 +182,7 @@ const PreviewCodeAside: React.FC<{ preview: OutputDTO | undefined }> = ({ previe
             >
               Copy
             </button>
+      {/* <pre>{JSON.stringify({tree},null,2)}</pre> */}
         </div>
       </main>
     </div>

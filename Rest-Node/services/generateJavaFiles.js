@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import ejs from 'ejs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { data } from '../frontendOutput.js'; // Assuming frontendOutput.js exports the array
+import { data } from '../frontendOutput.js'; // Assuming this is your data structure
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,53 +23,48 @@ export async function generateJavaFiles() {
 
     // Loop through the array in data
     for (const fileGroup of data) {
-        // Generating entity files
-        if (Array.isArray(fileGroup.entityFiles)) {
-            for (const entity of fileGroup.entityFiles) {
+        // Handle entity files
+        if (fileGroup.name === 'entityFiles' && Array.isArray(fileGroup.files)) {
+            for (const entity of fileGroup.files) {
                 const entityFileName = entity.filename;
-                const entityFilePath = path.join(__dirname, 'javaFileTemplete', 'entityFiles.ejs');
-                const entityContent = await ejs.renderFile(entityFilePath, entity);
-                fs.writeFileSync(path.join(entityFilesDir, `${entityFileName}.java`), entityContent);
+                const entityFilePath = path.join(entityFilesDir, `${entityFileName}.java`);
+                fs.writeFileSync(entityFilePath, entity.content); // Write the content directly
             }
         }
 
-        // Generating object files
-        if (Array.isArray(fileGroup.objectFiles)) {
-            for (const object of fileGroup.objectFiles) {
+        // Handle object files
+        if (fileGroup.name === 'objectFile' && Array.isArray(fileGroup.files)) {
+            for (const object of fileGroup.files) {
                 const objectFileName = object.filename;
-                const objectFilePath = path.join(__dirname, 'javaFileTemplete', 'objectFiles.ejs');
-                const objectContent = await ejs.renderFile(objectFilePath, object);
-                fs.writeFileSync(path.join(objectFilesDir, `${objectFileName}.java`), objectContent);
+                const objectFilePath = path.join(objectFilesDir, `${objectFileName}.java`);
+                fs.writeFileSync(objectFilePath, object.content); // Write the content directly
             }
         }
 
-        // Generating repository files
-        if (Array.isArray(fileGroup.repoFiles)) {
-            for (const repo of fileGroup.repoFiles) {
+        // Handle repository files
+        if (fileGroup.name === 'repoFiles' && Array.isArray(fileGroup.files)) {
+            for (const repo of fileGroup.files) {
                 const repoFileName = repo.filename;
-                const repoFilePath = path.join(__dirname, 'javaFileTemplete', 'repoFiles.ejs');
-                const repoContent = await ejs.renderFile(repoFilePath, repo);
-                fs.writeFileSync(path.join(repoFilesDir, `${repoFileName}.java`), repoContent);
+                const repoFilePath = path.join(repoFilesDir, `${repoFileName}.java`);
+                fs.writeFileSync(repoFilePath, repo.content); // Write the content directly
             }
         }
 
-        // Generating service files
-        if (Array.isArray(fileGroup.serviceFiles)) {
-            for (const service of fileGroup.serviceFiles) {
+        // Handle service files
+        if (fileGroup.name === 'serviceFiles' && Array.isArray(fileGroup.files)) {
+            for (const service of fileGroup.files) {
                 const serviceFileName = service.filename;
-                const serviceFilePath = path.join(__dirname, 'javaFileTemplete', 'serviceFiles.ejs');
-                const serviceContent = await ejs.renderFile(serviceFilePath, service);
-                fs.writeFileSync(path.join(serviceFilesDir, `${serviceFileName}.java`), serviceContent);
+                const serviceFilePath = path.join(serviceFilesDir, `${serviceFileName}.java`);
+                fs.writeFileSync(serviceFilePath, service.content); // Write the content directly
             }
         }
 
-        // Generating controller files
-        if (Array.isArray(fileGroup.controllerFiles)) {
-            for (const controller of fileGroup.controllerFiles) {
-                const controllerName = controller.filename;
-                const controllerFilePath = path.join(__dirname, 'javaFileTemplete', 'controllerFiles.ejs');
-                const controllerContent = await ejs.renderFile(controllerFilePath, controller);
-                fs.writeFileSync(path.join(controllerFilesDir, `${controllerName}.java`), controllerContent);
+        // Handle controller files
+        if (fileGroup.name === 'controllerFiles' && Array.isArray(fileGroup.files)) {
+            for (const controller of fileGroup.files) {
+                const controllerFileName = controller.filename;
+                const controllerFilePath = path.join(controllerFilesDir, `${controllerFileName}.java`);
+                fs.writeFileSync(controllerFilePath, controller.content); // Write the content directly
             }
         }
     }
