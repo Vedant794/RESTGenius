@@ -1,18 +1,16 @@
-package com.example.demo.service;
+package [[${projectName}]].Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
  [# th:each="import : ${ServiceImports}"]
-       [[${import}]]
+       [[${import}]];
     [/]
 
 @Service
 public class [[${Entity}]]Service {
 
-    
-  
  [# th:each="repository : ${Repositories}"]
         @Autowired 
      private   [[${repository}]];

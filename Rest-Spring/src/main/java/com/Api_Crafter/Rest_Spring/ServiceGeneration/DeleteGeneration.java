@@ -7,35 +7,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import com.Api_Crafter.Rest_Spring.DTO.GenerationResult;
 import com.Api_Crafter.Rest_Spring.DTO.Relation;
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
+import com.Api_Crafter.Rest_Spring.Exception.NoSchemaFoundException;
+import com.Api_Crafter.Rest_Spring.Services.Helper;
 import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 
 public class DeleteGeneration implements CrudCommand {
-	
-	public final ImportUtils importUtils;
-	String projectName;
-	public DeleteGeneration(ImportUtils importUtils,String projectName) {
-	this.importUtils=importUtils;
-	this.projectName=projectName;
-	}
+
+    public final ImportUtils importUtils;
+    String projectName;
+
+    public DeleteGeneration(ImportUtils importUtils, String projectName) {
+        this.importUtils = importUtils;
+        this.projectName = projectName;
+    }
 
     @Override
-    public ServiceController execute(Map<String, Schema> schemaMap, Schema schema) {
-
-        // Separating the concerns
+    public List<GenerationResult> execute(Map<String, Schema> schemaMap, Schema schema) throws NoSchemaFoundException {
         List<String> deleteStatements = new ArrayList<>();
         List<String> fetchStatements = new ArrayList<>();
-        
-        importUtils.getServiceAutowire().add(schema.getSchema_name()+"Repository "+schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1)+"Repository");
 
-        importUtils.getServiceImport().add("import "+projectName+".Entity."+schema.getSchema_name());
-		importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+        // Use Helper.camelCase for repository names
+        importUtils.getServiceAutowire().add(schema.getSchema_name() + "Repository " + Helper.camelCase(schema.getSchema_name()) + "Repository");
+
+        importUtils.getServiceImport().add("import " + projectName + ".Model." + schema.getSchema_name());
+        importUtils.getServiceImport().add("import " + projectName + ".Repository." + schema.getSchema_name() + "Repository");
 
         // Fetching the root entity
-        fetchStatements.add(schema.getSchema_name()+" "+schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1)+"="+schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1) + "Repository.findById(id).orElseThrow(() -> new RuntimeException(\"" 
-                            + schema.getSchema_name() + " not found\"));\n");
+        fetchStatements.add(schema.getSchema_name() + " " + Helper.camelCase(schema.getSchema_name()) + " = " + Helper.camelCase(schema.getSchema_name()) + "Repository.findById(id).orElseThrow(() -> new RuntimeException(\"" 
+                + schema.getSchema_name() + " not found\"));\n");
 
         // Creating a queue for schema level traversal
         Queue<SchemaLevel> queue = new LinkedList<>();
@@ -44,75 +47,87 @@ public class DeleteGeneration implements CrudCommand {
         // Traversing relationships in the schema
         while (!queue.isEmpty()) {
             SchemaLevel temp = queue.poll();
-            importUtils.getServiceImport().add("import "+projectName+".Entity."+temp.getSchmea().getSchema_name());
-			importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+            importUtils.getServiceImport().add("import " + projectName + ".Model." + temp.getSchmea().getSchema_name());
+            importUtils.getServiceImport().add("import " + projectName + ".Repository." + schema.getSchema_name() + "Repository");
 
-            
             Schema currentSchema = temp.getSchmea();
-            importUtils.getServiceAutowire().add(currentSchema.getSchema_name()+"Repository "+currentSchema.getSchema_name().substring(0, 1).toLowerCase() +currentSchema.getSchema_name().substring(1)+"Repository");
-            
+            importUtils.getServiceAutowire().add(currentSchema.getSchema_name() + "Repository " + Helper.camelCase(currentSchema.getSchema_name()) + "Repository");
+
             for (Relation relation : currentSchema.getRelations()) {
-				importUtils.getServiceImport().add("import "+projectName+".Entity."+relation.getTarget());
-				importUtils.getServiceImport().add("import "+projectName+".Repositories."+relation.getTarget()+"Repository");
-            	
+                importUtils.getServiceImport().add("import " + projectName + ".Model." + relation.getTarget());
+                importUtils.getServiceImport().add("import " + projectName + ".Repository." + relation.getTarget() + "Repository");
+
                 if (relation.getType().equals("OneToOne")) {
                     fetchStatements.add(handleOneToOne(currentSchema.getSchema_name(), relation.getTarget()));
-                    deleteStatements.add(relation.getTarget().substring(0,1).toLowerCase()+relation.getTarget().substring(1)+"Repository.deleteById(" 
-                                         + currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1) + ".get" 
-                                         + relation.getTarget() + "Id());\n");
+                    deleteStatements.add(Helper.camelCase(relation.getTarget()) + "Repository.deleteById(" 
+                            + Helper.camelCase(currentSchema.getSchema_name()) + ".get" + relation.getTarget() + "Id());\n");
                 } else if (relation.getType().equals("OneToMany")) {
                     fetchStatements.add(handleOneToMany(currentSchema.getSchema_name(), relation.getTarget()));
-                    deleteStatements.add("if(!"+relation.getTarget().toLowerCase()+"List.isEmpty()){\n"+
-                    		relation.getTarget().toLowerCase()+"Repository.deleteManyIds(student.get"+relation.getTarget()+"Ids())\n}\n");
-                    
-
+                    deleteStatements.add("if (!" + relation.getTarget().toLowerCase() + "List.isEmpty()) {\n" +
+                            relation.getTarget().toLowerCase() + "Repository.deleteAllById(" + Helper.camelCase(currentSchema.getSchema_name()) + ".get" + relation.getTarget() + "Ids());\n}\n");
                 }
-                queue.add(new SchemaLevel(schemaMap.get(relation.getTarget()), temp.getLevel() + 1));
+                if(schemaMap.get(relation.getTarget())==null)throw new NoSchemaFoundException(relation.getTarget()+" Schema is not defined");
+                else {
+                    queue.add(new SchemaLevel(schemaMap.get(relation.getTarget()), temp.getLevel() + 1));
+				}
+            
             }
         }
 
-        
         // Building the final method for deleting
         StringBuilder template = new StringBuilder();
         String parent = schema.getSchema_name();
         template.append("public void delete" + parent + "ById(String id) {\n");
-        
+
         // Add fetch statements
         fetchStatements.forEach(template::append);
-        
-       
+
         // Add delete statements
         deleteStatements.forEach(template::append);
         template.append("\n");
-        template.append(schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1)+"Repository.deleteById(id);\n");
+        template.append(Helper.camelCase(schema.getSchema_name()) + "Repository.deleteById(id);\n");
         template.append("}");
-        
+
         // Output the generated method for verification
-       System.out.println(template);
-String controllerString=handleDeleteController(schema.getSchema_name());
-        return new ServiceController(template.toString(),controllerString);
+    //    System.out.println(template);
+        String controllerString = handleDeleteController(schema.getSchema_name());
+
+        List<GenerationResult> rslt = new ArrayList<>();
+
+        GenerationResult serviceGeneration = new GenerationResult();
+        serviceGeneration.setContent(template.toString());
+        serviceGeneration.setFilename(schema.getSchema_name() + "Service");
+        serviceGeneration.setType("Service_SubPart");
+
+        rslt.add(serviceGeneration);
+        GenerationResult controllerGeneration = new GenerationResult();
+        controllerGeneration.setContent(controllerString);
+        controllerGeneration.setType("Controller_SubPart");
+        controllerGeneration.setFilename(schema.getSchema_name() + "Controller");
+        rslt.add(controllerGeneration);
+
+        return rslt;
     }
 
     // Method to handle OneToOne relationships
     String handleOneToOne(String parent, String child) {
-    	String smallchild=child.substring(0,1).toLowerCase()+child.substring(1);
-    	String smallparent=parent.substring(0,1).toLowerCase()+parent.substring(1);
-    	
         StringBuilder template = new StringBuilder();
-        template.append(child +" "+smallchild+"="+ smallchild + "Repository.findById(" + smallparent + ".get" + child + "Id())");
+        template.append(child + " " + Helper.camelCase(child) + " = " + Helper.camelCase(child) + "Repository.findById(" + Helper.camelCase(parent) + ".get" + child + "Id())");
         template.append(".orElseThrow(() -> new RuntimeException(\"" + child + " not found\"));\n");
         return template.toString();
     }
 
     // Method to handle OneToMany relationships
     String handleOneToMany(String parent, String child) {
-    	importUtils.getServiceImport().add("import java.util.List;");
+        importUtils.getServiceImport().add("import java.util.List");
+        importUtils.getServiceImport().add("import java.util.stream.Collectors");
+        
         StringBuilder template = new StringBuilder();
-        String smallchild = child.substring(0, 1).toLowerCase() + child.substring(1);
+        String smallchild = Helper.camelCase(child); // Use Helper.camelCase here
 
         // Generating code to fetch the list of child entities
-        template.append("List<" + child + "> " + child.toLowerCase() + "List = Optional.ofNullable(" 
-                       + parent.toLowerCase() + ".get" + child + "Ids())\n");
+        template.append("List<" + child + "> " + smallchild.toLowerCase() + "List = Optional.ofNullable(" 
+                + Helper.camelCase(parent) + ".get" + child + "Ids())\n");
         template.append("    .orElse(Collections.emptyList())\n");
         template.append("    .stream()\n");
         template.append("    .map(childId -> " + smallchild + "Repository.findById(childId)\n");
@@ -122,8 +137,6 @@ String controllerString=handleDeleteController(schema.getSchema_name());
         return template.toString();
     }
 
-
-    
     String handleDeleteController(String Entity) {
         String entity = Entity.substring(0, 1).toLowerCase() + Entity.substring(1);
         String entityService = entity + "Service";
@@ -140,7 +153,7 @@ String controllerString=handleDeleteController(schema.getSchema_name());
                 + "            logger.info(\"Deleting " + entity + " with id: {}\", id);\r\n"
                 + "            \r\n"
                 + "            // Attempt to delete the entity directly\r\n"
-                + "            " + entityService + ".deleteById(id);\r\n"
+                + "            " + entityService + ".delete"+Entity+"ById(id);\r\n"
                 + "            logger.info(\"" + Entity + " with id: {} successfully deleted\", id);\r\n"
                 + "            return new ResponseEntity<>(\"" + Entity + " successfully deleted\", HttpStatus.OK);\r\n"
                 + "        } catch (NoSuchElementException e) {\r\n"
@@ -156,7 +169,4 @@ String controllerString=handleDeleteController(schema.getSchema_name());
 
         return templateString;
     }
-
-
-    
 }

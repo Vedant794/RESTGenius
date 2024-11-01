@@ -1,9 +1,13 @@
 package com.Api_Crafter.Rest_Spring.ServiceGeneration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import com.Api_Crafter.Rest_Spring.DTO.GenerationResult;
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
+import com.Api_Crafter.Rest_Spring.Services.Helper;
 import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 
 public class UpdateGeneration implements CrudCommand {
@@ -17,13 +21,13 @@ public class UpdateGeneration implements CrudCommand {
 	}
 
     @Override
-    public ServiceController execute(Map<String, Schema> schemaMap, Schema schema) {
+    public List<GenerationResult> execute(Map<String, Schema> schemaMap, Schema schema) {
 
-    	importUtils.getServiceImport().add("import "+projectName+".Entity."+schema.getSchema_name());
-    	importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+    	importUtils.getServiceImport().add("import "+projectName+".Model."+schema.getSchema_name());
+    	importUtils.getServiceImport().add("import "+projectName+".Repository."+schema.getSchema_name()+"Repository");
     	
         String Entity = schema.getSchema_name(); // Entity name (e.g., User)
-        String entityString = Entity.substring(0, 1).toLowerCase() + Entity.substring(1); // entity (e.g., user)
+        String entityString = Helper.camelCase(Entity); // entity (e.g., user)
         String entityRepository = entityString + "Repository"; // userRepository
         String entityService = entityString + "Service"; // userService
         
@@ -44,8 +48,21 @@ public class UpdateGeneration implements CrudCommand {
                 + "}";
         
 
+        List<GenerationResult>rslt=new ArrayList<GenerationResult>();
+        GenerationResult servicegeneration=new GenerationResult();
+        servicegeneration.setContent(serviceTemplate);
+        servicegeneration.setFilename(schema.getSchema_name()+"Service");
+        servicegeneration.setType("Service_SubPart");
+
+        rslt.add(servicegeneration);
+        GenerationResult controllergeneration=new GenerationResult();
+        controllergeneration.setContent( controllerTemplate);
+        controllergeneration.setType("Controller_SubPart");
+        controllergeneration.setFilename(schema.getSchema_name()+"Controller");
+        rslt.add(controllergeneration);
+	
    
         
-        return new ServiceController(serviceTemplate, controllerTemplate);
+        return rslt;
     }
 }
