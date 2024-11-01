@@ -2,6 +2,8 @@ package com.Api_Crafter.Rest_Spring.DTO;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Attribute {
 
     private String var_name;

@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import com.Api_Crafter.Rest_Spring.DTO.GenerationResult;
 import com.Api_Crafter.Rest_Spring.DTO.Relation;
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
+import com.Api_Crafter.Rest_Spring.Exception.NoSchemaFoundException;
+import com.Api_Crafter.Rest_Spring.Services.Helper;
 import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
 
 public class FindByIdGeneration implements CrudCommand {
@@ -24,14 +27,14 @@ public class FindByIdGeneration implements CrudCommand {
 	}
 
     @Override
-    public ServiceController execute(Map<String, Schema> schemaMap, Schema schema) {
+    public List<GenerationResult> execute(Map<String, Schema> schemaMap, Schema schema) throws NoSchemaFoundException {
 
         List<String> saveStrings = new ArrayList<>();
         List<String> findByStrings = new ArrayList<>();
         findByStrings.add(handleOneToOne(schema.getSchema_name(), "id"));
 
-    	importUtils.getServiceImport().add("import "+projectName+".Entity."+schema.getSchema_name());
-		importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+    	importUtils.getServiceImport().add("import "+projectName+".Model."+schema.getSchema_name());
+		importUtils.getServiceImport().add("import "+projectName+".Repository."+schema.getSchema_name()+"Repository");
 
         
         // Create a queue to traverse the schema relations
@@ -41,32 +44,33 @@ public class FindByIdGeneration implements CrudCommand {
         while (!queue.isEmpty()) {
             SchemaLevel temp = queue.poll();
             
-            importUtils.getServiceImport().add("import "+projectName+".Entity."+temp.getSchmea().getSchema_name());
-			importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+            importUtils.getServiceImport().add("import "+projectName+".Model."+temp.getSchmea().getSchema_name());
+			importUtils.getServiceImport().add("import "+projectName+".Repository."+schema.getSchema_name()+"Repository");
 
             
             int level = temp.getLevel();
             Schema currentSchema = temp.getSchmea();
-            String lowerCurrentString=currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1);
-            importUtils.getServiceAutowire().add(currentSchema.getSchema_name()+"Repository "+currentSchema.getSchema_name().substring(0, 1).toLowerCase() +currentSchema.getSchema_name().substring(1)+"Repository");
+            String lowerCurrentString=Helper.camelCase(currentSchema.getSchema_name());
+            importUtils.getServiceAutowire().add(currentSchema.getSchema_name()+"Repository "+Helper.camelCase(currentSchema.getSchema_name())+"Repository");
             
             // Traverse through each relation in the schema
             for (Relation relation : currentSchema.getRelations()) {
-				importUtils.getServiceImport().add("import "+projectName+".Entity."+relation.getTarget());
-				importUtils.getServiceImport().add("import "+projectName+".Repositories."+relation.getTarget()+"Repository");
+				importUtils.getServiceImport().add("import "+projectName+".Model."+relation.getTarget());
+				importUtils.getServiceImport().add("import "+projectName+".Repository."+relation.getTarget()+"Repository");
 				
                 if (relation.isLazyLoad()) {
                     if (relation.getType().equals("OneToOne")) {
                         findByStrings.add(handleOneToOne(relation.getTarget(),
-                                currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1) + ".get" + relation.getTarget() + "Id()"));
+                              Helper.camelCase(currentSchema.getSchema_name()) + ".get" + relation.getTarget() + "Id()"));
                         saveStrings.add(  currentSchema.getSchema_name().substring(0,1).toLowerCase()+currentSchema.getSchema_name().substring(1) + ".set" + relation.getTarget() + "("
-                                + relation.getTarget().substring(0,1).toLowerCase()+relation.getTarget().substring(1) + ");\n");
+                                + Helper.camelCase(relation.getTarget())+ ");\n");
 
                         // Add related schema to queue for further processing
+                        if(schemaMap.get(relation.getTarget())==null)throw new NoSchemaFoundException(relation.getTarget()+" No such schema is defiened");
                         queue.add(new SchemaLevel(schemaMap.get(relation.getTarget()), level + 1));
                     } else {
                         findByStrings.add(handleOneToMany(currentSchema.getSchema_name(), relation.getTarget()));
-                        saveStrings.add(""+currentSchema.getSchema_name()+".set"+relation.getTarget()+"s("+relation.getTarget()+"s);\n");
+                        saveStrings.add(Helper.camelCase(currentSchema.getSchema_name())+".set"+relation.getTarget()+"Ids("+Helper.camelCase(relation.getTarget())+"s);\n");
                     }
                 }
             }
@@ -83,19 +87,33 @@ public class FindByIdGeneration implements CrudCommand {
         saveStrings.forEach(template::append);
 
         // Final return statement
-        template.append("return " + parent.substring(0,1).toLowerCase()+parent.substring(1)+ ";\n}");
+        template.append("return " + Helper.camelCase(parent)+ ";\n}");
 
         // Print generated template for verification
        // System.out.println(template);
+        
+        List<GenerationResult>rslt=new ArrayList<GenerationResult>();
+        GenerationResult servicegeneration=new GenerationResult();
+        servicegeneration.setContent(template.toString());
+        servicegeneration.setFilename(schema.getSchema_name()+"Service");
+        servicegeneration.setType("Service_SubPart");
+
+        rslt.add(servicegeneration);
+        GenerationResult controllergeneration=new GenerationResult();
+        controllergeneration.setContent(handleController(schema.getSchema_name()));
+        controllergeneration.setType("Controller_SubPart");
+        controllergeneration.setFilename(schema.getSchema_name()+"Controller");
+        rslt.add(controllergeneration);
+
 
         String controller=handleController(schema.getSchema_name());
-        return new ServiceController(template.toString(),controller); // Return the generated code as a string
+        return rslt;         // Return the generated code as a string
     }
 
 
  // Method to handle OneToOne relationships
     private String handleOneToOne(String parent, String id) {
-        String smallParent = parent.substring(0, 1).toLowerCase() + parent.substring(1);
+        String smallParent = Helper.camelCase(parent);
         StringBuilder template = new StringBuilder();
         template.append(parent + " " + smallParent + " = ");
         template.append(smallParent + "Repository.findById(" + id + ")");
@@ -107,19 +125,19 @@ public class FindByIdGeneration implements CrudCommand {
     // Method to handle OneToMany relationships
     private String handleOneToMany(String parent, String child) {
     	importUtils.getServiceImport().add("import java.util.List;");
-        String smallChild = child.substring(0, 1).toLowerCase() + child.substring(1);
-        String smallParent = parent.substring(0, 1).toLowerCase() + parent.substring(1);
+        String smallChild = Helper.camelCase(child);
+        String smallParent =Helper.camelCase(parent);
 
         StringBuilder template = new StringBuilder();
 
         // Generate code for creating a list of children
-        template.append("List<" + child + "> " + smallChild + "s = new ArrayList<>();\n");
+        template.append("List<String> " + smallChild + "s = new ArrayList<>();\n");
         
         // Generate code for looping through parent and fetching child objects
         template.append("for (String it : " + smallParent + ".get" + child + "Ids()) {\n");
         template.append("    " + smallChild + "s.add(");
         template.append(smallChild + "Repository.findById(it)");
-        template.append(".orElseThrow(() -> new RuntimeException(\"" + child + " not found\")));\n");
+        template.append(".orElseThrow(() -> new RuntimeException(\"" + child + " not found\")).getId());\n");
         template.append("}\n");
 
         return template.toString();
@@ -129,7 +147,7 @@ public class FindByIdGeneration implements CrudCommand {
     
     //handle controller
     String handleController(String Entity) {
-        String entity = Entity.substring(0, 1).toLowerCase() + Entity.substring(1);
+        String entity = Helper.camelCase(Entity);
         String entityService = entity + "Service";
         
         String templateString = " @Operation(summary = \"Get " + Entity + " by ID\", description = \"Fetch a specific " + Entity + " by its ID.\")\r\n"

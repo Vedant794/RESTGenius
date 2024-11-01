@@ -1,17 +1,25 @@
-package com.example.demo.model;
+package [[${projectName}]].Model;
 
 import org.springframework.data.annotation.Id;
+import java.util.Optional;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+import lombok.AllArgsConstructor;
+import java.util.List;
+import lombok.Data;
 [# th:each="import : ${imports}"]  
-[[${import}]]
+[[${import}]];
 [/]
 
+@Data
+@AllArgsConstructor
 @Document(collection = "[[${schma_dbname}]]") 
 public class [[${Entity}]] {
+ 
+ @Id
+   String id;
 
     [# th:each="field : ${fields}"]
         [[${field.annotation}]]   
-        private [[${field.field}]];
+ private [[${field.field}]];
     [/]
 }

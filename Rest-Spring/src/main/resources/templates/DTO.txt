@@ -13,10 +13,10 @@ import lombok.Builder;
 @AllArgsConstructor 
 @NoArgsConstructor 
 @Builder 
-public class [[${Entity}]] {
+public class Save[[${Entity}]]DTO {
 
-  [# th:each="field : ${fields}"]
-        [[${field.annotation}]]   
-        private [[${field.field}]];
+  [# th:each="field : ${fields}"] 
+        private [[${field}]];
+        
     [/]
 }

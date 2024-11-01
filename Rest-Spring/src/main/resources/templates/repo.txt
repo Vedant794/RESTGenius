@@ -1,11 +1,11 @@
-package [[${Package}]].Repository;
+package [[${projectName}]].Repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import [[${Artifact}]].Model.[[${Entity}]];
+import [[${projectName}]].Model.[[${Entity}]];
 
 @Repository
-public interface [[${Schema_Name}]]Repository extends MongoRepository<[[${Entity}]], String> {
+public interface [[${Entity}]]Repository extends MongoRepository<[[${Entity}]], String> {
   
   
 }

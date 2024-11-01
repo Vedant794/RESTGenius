@@ -5,7 +5,10 @@ import java.util.*;
 import com.Api_Crafter.Rest_Spring.DTO.Schema;
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.RepositoryGenerator;
 import com.Api_Crafter.Rest_Spring.EntitiesGeneration.ServiceController;
+import com.Api_Crafter.Rest_Spring.Exception.NoSchemaFoundException;
+import com.Api_Crafter.Rest_Spring.Services.Helper;
 import com.Api_Crafter.Rest_Spring.Utils.ImportUtils;
+import com.Api_Crafter.Rest_Spring.DTO.GenerationResult;
 import com.Api_Crafter.Rest_Spring.DTO.Relation;
 
 public class SaveGeneration implements CrudCommand {
@@ -20,11 +23,16 @@ String	projectName;
 	}
 
 	@Override
-	public ServiceController execute(Map<String, Schema> schemaMap, Schema schema) {
-
+	public List<GenerationResult> execute(Map<String, Schema> schemaMap, Schema schema) throws NoSchemaFoundException {
+ 
+		List<String>callSet=new ArrayList<>();
+		callSet.add(schema.getSchema_name());
+		
+		
+		
+		
 		// camelcase schema name
-		String lowercaseParent = schema.getSchema_name().substring(0, 1).toLowerCase()
-				+ schema.getSchema_name().substring(1);
+		String lowercaseParent =Helper.camelCase(schema.getSchema_name());
 
 		// Initializing the queue for BFS
 		Queue<SchemaLevel> queue = new LinkedList<>();
@@ -33,8 +41,7 @@ String	projectName;
 
 		// Function parameters set
 		Set<String> fnParams = new HashSet<>();
-		fnParams.add(schema.getSchema_name() + " " + schema.getSchema_name().substring(0, 1).toLowerCase()
-				+ schema.getSchema_name().substring(1));
+		fnParams.add(schema.getSchema_name() + " " + lowercaseParent);
 
 		// Result is stored here
 		List<String> saveStrings = new ArrayList<>();
@@ -44,27 +51,29 @@ String	projectName;
 			SchemaLevel temp = queue.poll();
 			
 			//adding imports
-			importUtils.getServiceImport().add("import "+projectName+".Entity."+temp.getSchmea().getSchema_name());
-			importUtils.getServiceImport().add("import "+projectName+".Repositories."+schema.getSchema_name()+"Repository");
+			importUtils.getServiceImport().add("import "+projectName+".Model."+temp.getSchmea().getSchema_name());
+			importUtils.getServiceImport().add("import "+projectName+".Repository."+schema.getSchema_name()+"Repository");
 			importUtils.getControllerImport().add("import "+projectName+".Service."+schema.getSchema_name()+"Service");
-
+			importUtils.getControllerImport().add("import "+projectName+".Model."+schema.getSchema_name());
+			
 			if (temp.getSchmea().getRelations() != null) {
 				for (Relation relation : temp.getSchmea().getRelations()) {
+					if(schemaMap.get(relation.getTarget())==null)throw new NoSchemaFoundException(relation.getTarget()+" No such schema is defined");
 					Schema relatedSchema = schemaMap.get(relation.getTarget());
 
-					importUtils.getServiceImport().add("import "+projectName+".Entity."+relation.getTarget());
-					importUtils.getServiceImport().add("import "+projectName+".Repositories."+relation.getTarget()+"Repository");
-					importUtils.getControllerImport().add("import "+projectName+".Entity."+relation.getTarget());
+					importUtils.getServiceImport().add("import "+projectName+".Model."+relation.getTarget());
+					importUtils.getServiceImport().add("import "+projectName+".Repository."+relation.getTarget()+"Repository");
+					importUtils.getControllerImport().add("import "+projectName+".Model."+relation.getTarget());
 				
 					
 					importUtils.getServiceAutowire()
 							.add(relatedSchema.getSchema_name() + "Repository "
-									+ relatedSchema.getSchema_name().substring(0, 1).toLowerCase()
-									+ relatedSchema.getSchema_name().substring(1) + "Repository");
+									+ Helper.camelCase(relatedSchema.getSchema_name())
+									+ "Repository");
 
 					// Adding it to function parameters
 					String nameString = relatedSchema.getSchema_name();
-					String smallnameString = nameString.substring(0, 1).toLowerCase() + nameString.substring(1);
+					String smallnameString = Helper.camelCase(relatedSchema.getSchema_name());
 
 					// for one to one case
 					if (relation.getType().equals("OneToOne")) {
@@ -72,12 +81,15 @@ String	projectName;
 								temp.getSchmea().getSchema_name()));
 						// adding the paremeter --> Entity entity
 						fnParams.add(nameString + " " + smallnameString);
+						callSet.add(relation.getTarget());
 					} else {
 						saveStrings.add(
 								handleOneToMany(temp.getSchmea().getSchema_name(), relatedSchema.getSchema_name()));
 						// adding the parameter --> List<Entity>entitis
 						fnParams.add("List<" + nameString + ">" + smallnameString + "s");
+						callSet.add(relation.getTarget()+"s");
 					}
+				
 					queue.add(new SchemaLevel(relatedSchema, temp.getLevel() + 1));
 				}
 			}
@@ -104,12 +116,12 @@ String	projectName;
 
 		// adding--> return entityRepository.save(entity); }
 		template.append("return ")
-				.append(schema.getSchema_name().substring(0, 1).toLowerCase() + schema.getSchema_name().substring(1))
+				.append(lowercaseParent)
 				.append("Repository.save(" + lowercaseParent + ");");
 		template.append("\n}");
 
 		// creating the desired controller for the save String
-		String controller = handleSaveController(schema.getSchema_name(), fnParams.stream().toList());
+		String controller = handleSaveController(schema.getSchema_name(), fnParams.stream().toList(),callSet);
             controller.replace("&lt;", "<").replace("&gt;", ">");
 		
 		// replacing the &lt with < and &gt with >
@@ -119,14 +131,29 @@ String	projectName;
 		// debuging
 		// System.out.println(template);
 
-		return new ServiceController(serviceString, controller);
+		
+		  List<GenerationResult>rslt=new ArrayList<GenerationResult>();
+	        GenerationResult servicegeneration=new GenerationResult();
+	        servicegeneration.setContent(template.toString());
+	        servicegeneration.setFilename(schema.getSchema_name()+"Service");
+	        servicegeneration.setType("Service_SubPart");
+
+	        rslt.add(servicegeneration);
+	        GenerationResult controllergeneration=new GenerationResult();
+	        controllergeneration.setContent( controller);
+	        controllergeneration.setType("Controller_SubPart");
+	        controllergeneration.setFilename(schema.getSchema_name()+"Controller");
+	        rslt.add(controllergeneration);
+		
+		
+		return rslt;
 	}
 
 	// Handling OneToOne relation
 	public String handleOneToOneString(String entity, String parent) {
 		// Lowercase entity name
-		String lowerEntity = entity.substring(0, 1).toLowerCase() + entity.substring(1);
-		String smallparent = parent.substring(0, 1).toLowerCase() + parent.substring(1);
+		String lowerEntity = Helper.camelCase(entity);
+		String smallparent = Helper.camelCase(parent);
 
 		StringBuilder template = new StringBuilder();
 		template.append(entity + " new").append(lowerEntity).append(" = ").append(lowerEntity)
@@ -143,8 +170,8 @@ String	projectName;
 		importUtils.getControllerImport().add("import java.util.List;");
 
 		// Lowercase entity names
-		String lowerParentEntity = parentEntity.substring(0, 1).toLowerCase() + parentEntity.substring(1);
-		String lowerChildEntity = childEntity.substring(0, 1).toLowerCase() + childEntity.substring(1);
+		String lowerParentEntity = Helper.camelCase(parentEntity);
+		String lowerChildEntity = Helper.camelCase(childEntity);
 
 		StringBuilder template = new StringBuilder();
 
@@ -172,8 +199,8 @@ String	projectName;
 		return null;
 	}
 
-	String handleSaveController(String Entity, List<String> params) {
-	    String entity = Entity.substring(0, 1).toLowerCase() + Entity.substring(1);
+	String handleSaveController(String Entity, List<String> params,List<String>calls) {
+	    String entity = Helper.camelCase(Entity);
 	    String entityService = entity + "Service";
 
 	    StringBuilder templateString = new StringBuilder();
@@ -192,6 +219,9 @@ String	projectName;
 	    // Check if params require a DTO
 	    if (params.size() > 1) {
 	        // More than one parameter, use DTO
+	    	
+	    	importUtils.getControllerImport().add( ("import "+projectName+".Model.save"+Entity+"DTO"));
+	    	
 	        templateString
 	                .append("    public ResponseEntity<?> save" + Entity + "(@RequestBody Save" + Entity + "DTO save"
 	                        + entity + "DTO) {\r\n")
@@ -200,13 +230,13 @@ String	projectName;
 
 	        // Building the service save method call with parameters from DTO
 	        templateString.append("            // Save the new entity\r\n")
-	                .append("            " + Entity + " savedEntity = " + entityService + ".save(\r\n");
+	                .append("            " + Entity + " savedEntity = " + entityService + ".save"+Entity+"(\r\n");
 
 	        // Append parameters by fetching from DTO
-	        for (int i = 0; i < params.size(); i++) {
-	            String param = params.get(i);
+	        for (int i = 0; i < calls.size(); i++) {
+	            String param = calls.get(i);
 	            templateString.append("                save" + entity + "DTO.get" + capitalize(param) + "()");
-	            if (i != params.size() - 1) {
+	            if (i != calls.size() - 1) {
 	                templateString.append(",\r\n");
 	            }
 	        }
@@ -221,7 +251,7 @@ String	projectName;
 	                .append("        try {\r\n")
 	                .append("            logger.info(\"Saving new " + entity + ": {}\", " + entity + ");\r\n")
 	                .append("            // Save the new entity\r\n")
-	                .append("            " + Entity + " savedEntity = " + entityService + ".save(" + entity + ");\r\n");
+	                .append("            " + Entity + " savedEntity = " + entityService + ".save"+Entity+"(" + entity + ");\r\n");
 	    }
 
 	    // Common response handling logic for both cases
@@ -245,5 +275,8 @@ String	projectName;
 	    return param.substring(0, 1).toUpperCase() + param.substring(1);
 	}
 
+	
+
+	
 
 }
