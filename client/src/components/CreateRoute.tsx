@@ -6,7 +6,6 @@ import useRoute, { RouteContext } from "./context/routeContext";
 import axios from "axios";
 import useProjectName from "./context/projectNameContext";
 import useSchema from "./context/schemaContext";
-import useSchemaIndex from "./context/SchemaIndex";
 import GetStarted from "./GetStarted";
 
 function CreateRoute() {
@@ -14,8 +13,8 @@ function CreateRoute() {
   const {mode} = useTheme()
   const {projectName} = useProjectName()
   const {schemas} = useSchema()
-  const {ind} =useSchemaIndex()
   const [schemaName,setSchemaName]=useState("")
+  const [errors,setErrors] = useState(false)
 
   type criteria = {
     targetVar: string;
@@ -101,10 +100,17 @@ function CreateRoute() {
 
   const handleSubmit=(e:React.FormEvent)=>{
     e.preventDefault()
-    const routeData=routes
 
-    localStorage.setItem("RoutesData",JSON.stringify(routeData))
-    alert(`Your Routes for ${schemaName} Schema has been added`)
+    if(schemaName.length==0){
+      setErrors(true)
+    }
+    else{
+      const routeData=routes
+  
+      localStorage.setItem("RoutesData",JSON.stringify(routeData))
+      alert(`Your Routes for ${schemaName} Schema has been added`)
+      handleRoutesToBackend();
+    }
   }
 
   const handleRoutesToBackend=async()=>{
@@ -120,28 +126,34 @@ function CreateRoute() {
   const handleSchemaName=(name:string)=>{
     setSchemaName(name)
   }
-  // console.log(ind)
   // console.log(routes)
+  // console.log(schemas)
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="">
     <RouteContext.Provider value={{routes,setRoutes}}>
       <Navbar/>
       <GetStarted/>
       <div className="container mx-auto p-4 -mt-[99vh] ml-60">
         <div className="routes">
-          <div className="name flex justify-around">
+          <div className="name flex justify-around items-center">
             <h1 className="text-2xl font-bold mb-4">
               Create Routes
             </h1>
-            <input
-            type="text"
-            placeholder="Enter Schema name for Which you want to make routes"
-            onChange={(e)=>{
+            <div>
+            <select
+             onChange={(e)=>{
               handleSchemaName(e.target.value)
-            }}
-            className={`w-[27rem] p-2 ml-6 focus:outline-none border-b-2  ${mode ? 'border-black' : 'border-white bg-[#282929] text-white'}`}
-            />
+             }}
+             className={`w-[25rem] rounded-xl ${mode ? 'bg-slate-100 text-black' : 'bg-[#282929] text-white shadow-black'} p-3 focus:outline-none mt-3 shadow-xl cursor-pointer`}
+            >
+              <option value="">Select Schemas for routes</option>
+              {schemas.map((val)=>(
+                <option value={val.schema_name}>{val.schema_name}</option>
+              ))}
+            </select>
+              {errors ? <div className="text-red-500 mt-2">*Please Select the Schema for Creating Routes</div> : <></>}
+            </div>
 
           </div>
           <div className="add-back flex justify-between items-center">
@@ -161,10 +173,7 @@ function CreateRoute() {
             >
               <form
                action=""
-               onSubmit={(e)=>{
-                handleSubmit(e);
-                handleRoutesToBackend()
-              }}
+               onSubmit={handleSubmit}
               >
               <input
                 type="text"
