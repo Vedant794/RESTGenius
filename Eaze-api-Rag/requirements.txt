@@ -1,0 +1,13 @@
+# Flask for building the web server
+Flask
+
+# Dotenv for loading environment variables
+python-dotenv
+
+# LangChain for LLM workflows
+langchain==0.1.17
+
+# LangChain OpenAI wrapper for Azure
+langchain-openai
+
+# OS and standard libraries are included by default in Python, no need to specify them
