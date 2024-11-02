@@ -4,11 +4,15 @@ import useProjectName from './context/projectNameContext'
 import beautify from 'js-beautify'
 import Navbar from './Navbar'
 import PreviewCodeAside from './PreviewCodeAside'
+import usePreviewLoad from './context/previwLoading'
+import Loading from './Loading'
 
 function PreviewCode() {
   
   const [preview,setPreview] = useState<OutputDTO | undefined>(undefined)
   const {projectName} = useProjectName()
+
+  const {load, setLoad} = usePreviewLoad()
 
 type File = {
     filename: string;
@@ -28,8 +32,11 @@ type OutputDTO = {
 
 const handlePreview = async () => {
   try {
+    setLoad(0);
     const response = await axios.get(`http://localhost:3000/backend/getProjectData/${projectName}`);
+    setLoad(25)
     const springResponse = await axios.post('http://localhost:8000/generateEntity', response.data.projectData);
+    setLoad(50)
     const parsedData: OutputDTO = springResponse.data;
 
     // Format Java code for each file in entityFiles, objectFile, repoFiles, serviceFiles, and controllerFiles
@@ -39,12 +46,15 @@ const handlePreview = async () => {
         content: formatJavaCode(`${file.content}`), // Format the content of each file
       }));
     };
+    setLoad(75)
 
     parsedData.entityFiles = formatFiles(parsedData.entityFiles);
     parsedData.objectFile = formatFiles(parsedData.objectFile);
     parsedData.repoFiles = formatFiles(parsedData.repoFiles);
     parsedData.serviceFiles = formatFiles(parsedData.serviceFiles);
     parsedData.controllerFiles = formatFiles(parsedData.controllerFiles);
+
+    setLoad(100)
 
     setPreview(parsedData); // Set the formatted parsedData to preview
   } catch (error) {
@@ -79,7 +89,11 @@ const handlePreview = async () => {
     <>
       <Navbar/>
       <div className="preview h-auto overflow-y-hidden ">
-      {preview && <PreviewCodeAside preview={preview}/>}
+       {load < 100 ? (
+          <div className="loading-indicator"><Loading/></div>
+        ) : (
+          preview && <PreviewCodeAside preview={preview} />
+        )}
 
       </div>
       
