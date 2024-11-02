@@ -1,0 +1,13 @@
+@keyframes blurText {
+    0% {
+      filter: blur(0px);
+    }
+    100% {
+      filter: blur(4px);
+    }
+  }
+  
+  .loading-text {
+    animation: blurText 1.5s infinite linear alternate;
+  }
+  
