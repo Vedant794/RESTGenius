@@ -37,35 +37,35 @@ Here's an enhanced version of the **How to Use** section to make it clearer and 
 **_Step 1_**: **Access Our Services**  
 Navigate to our website, and go to the services section to get started.
 
-![Home Page](<Screenshot 2024-11-10 185452.png>)
+![Home Page](./output/Screenshot%202024-11-10%20185452.png)
 
 ---
 
 **_Step 2_**: **Get Started**  
 On the next page, click the **Get Started** button to begin customizing your APIs.
 
-![Intro Page](image.png)
+![Intro Page](./output/image.png)
 
 ---
 
 **_Step 3_**: **Enter Project Details**  
 After clicking **Get Started**, you’ll see a project details form. Fill in the required fields, including your project name, MongoDB URI (optional), port (optional), and ORM (currently supporting Java - Spring).
 
-![Project Details](image-1.png)
+![Project Details](./output/image-1.png)
 
 ---
 
 **_Step 4_**: **Customize Schemas**  
 Click **Next** to open the schema customization page. Here, you can add new schemas by clicking the **Add New Schema** button. A form like this will appear:
 
-![Custom Schema](image-2.png)
+![Custom Schema](./output/image-2.png)
 
 - Enter the schema name and database name.
 - Click **Add Field** to add individual fields with properties like entity name, type, variable name, and additional options.
 
 If the **Entity Type** is set to **Object**, you'll see an option to add nested fields for embedded mapping:
 
-![Add Nesting](image-4.png)
+![Add Nesting](./output/image-4.png)
 
 Once you're satisfied with the schema, click **Done** to save it.
 
@@ -74,7 +74,7 @@ Once you're satisfied with the schema, click **Done** to save it.
 **_Step 5_**: **Create Routes**  
 After customizing schemas, you can dynamically create routes to add functionality to your API. The route creation page will look like this:
 
-![Routes](image-5.png)
+![Routes](./output/image-5.png)
 
 Simply follow the page instructions to set up and configure routes as needed.
 
@@ -83,13 +83,13 @@ Simply follow the page instructions to set up and configure routes as needed.
 **_Step 6_**: **Define Relations**  
 You can also establish relationships between multiple schemas. The relations page is intuitive and looks like this:
 
-![Relations](image-6.png)
+![Relations](./output/image-6.png)
 
 ---
 
 **_Step 7_**: **Preview and Export**  
 Finally, click the **Preview** button in the sidebar to review the customized code. From here, you can either copy or download the files and folders for your project.
 
-![Preview](<Screenshot 2024-11-10 190844.png>)
+![Preview](./output/Screenshot%202024-11-10%20190844.png)
 
 ---
