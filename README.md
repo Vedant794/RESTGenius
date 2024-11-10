@@ -2,11 +2,11 @@
 
 The Smart API Generation Technology
 
-**Introduction:-**
+### Introduction:-
 
 EazeApi is designed for developers who spend too much time creating APIs. With this platform, you can easily create or customize your own API code, including schema creation, selecting service functions, setting up advanced routes, and configuring a customized MongoDB setup. EazeApi also benefits frontend developers by integrating Swagger API documentation.
 
-**Benefits:-**
+### Benefits:-
 
 1. **Streamlined API Generation**: Simplifies the API creation process, ensuring a structured and efficient workflow for developers.
 
