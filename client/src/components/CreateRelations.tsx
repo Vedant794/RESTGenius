@@ -121,33 +121,39 @@ function CreateRelations() {
           {relation.map((relation, relationInd) => (
             <div
               key={relationInd}
-              className={`relationContent w-[60vw] ml-32 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 rounded-md`}
+              className={`relationContent w-[50vw] ml-32 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 `}
             >
               <form onSubmit={handleSubmit}>
-                <select
-                  value={relation.schema}
-                  onChange={(e) =>
-                    handleSchemaChange(relationInd, e.target.value)
-                  }
-                  className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
-                >
-                  <option disabled selected>
-                    Select the schema
-                  </option>
-                  {schemas.map((val) => (
-                    <option value={val.schema_name}>{val.schema_name}</option>
-                  ))}
-                </select>
+                <div className="select">
+                  <span className="font-popins">Select Schema:-</span>
+                  <select
+                    value={relation.schema}
+                    onChange={(e) =>
+                      handleSchemaChange(relationInd, e.target.value)
+                    }
+                    className={`w-[60%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                  >
+                    <option disabled selected>
+                      Select
+                    </option>
+                    {schemas.map((val) => (
+                      <option value={val.schema_name}>{val.schema_name}</option>
+                    ))}
+                  </select>
+                </div>
 
+                <span className="font-popins">
+                  Select Schema to be target:-
+                </span>
                 <select
                   value={relation.target}
                   onChange={(e) =>
                     handleTargetChange(relationInd, e.target.value)
                   }
-                  className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                  className={`w-[60%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                 >
                   <option disabled selected>
-                    Enter Schema to be targeted
+                    Select
                   </option>
                   {schemas.map((val) => (
                     <option value={val.schema_name}>{val.schema_name}</option>
@@ -155,7 +161,7 @@ function CreateRelations() {
                 </select>
 
                 <div className="lazyload ml-2">
-                  <label>Select LazyLoad:-</label>
+                  <label className="font-popins">Select LazyLoad:-</label>
                   <select
                     value={relation.lazyLoad.toString()} // Convert boolean to string
                     onChange={(e) =>
@@ -164,20 +170,20 @@ function CreateRelations() {
                         e.target.value === "true"
                       )
                     }
-                    className={`w-[70%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                    className={`w-[60%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   >
                     <option value="true">True</option>
                     <option value="false">False</option>
                   </select>
                 </div>
                 <div className="type ml-2">
-                  <label>Select Relation Type:-</label>
+                  <label className="font-popins">Select Relation Type:-</label>
                   <select
                     value={relation.type}
                     onChange={(e) =>
                       handleTypeChange(relationInd, e.target.value)
                     }
-                    className={`w-[70%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                    className={`w-[60%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   >
                     <option value="one-to-one">One-to-One</option>
                     <option value="one-to-many">One-to-Many</option>

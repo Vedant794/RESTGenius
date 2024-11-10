@@ -260,7 +260,7 @@ export default function CustomSchema() {
                       (attribute: Attribute, attrIndex: number) => (
                         <div
                           key={attrIndex}
-                          className={`attribute-section ${mode ? "bg-white" : "bg-[#202725] shadow-black"} p-4 mb-4 rounded-md shadow-xl`}
+                          className={`attribute-section ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-4 rounded-md shadow-xl`}
                         >
                           <input
                             type="text"
@@ -279,16 +279,36 @@ export default function CustomSchema() {
 
                           <select
                             value={attribute.db_type}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const selectedType = e.target.value;
                               handleAttributeChange(
                                 schemaIndex,
                                 attrIndex,
                                 "db_type",
-                                e.target.value
-                              )
-                            }
+                                selectedType
+                              );
+
+                              if (selectedType === "Object") {
+                                handleAttributeChange(
+                                  schemaIndex,
+                                  attrIndex,
+                                  "isObject",
+                                  true
+                                );
+                              } else {
+                                handleAttributeChange(
+                                  schemaIndex,
+                                  attrIndex,
+                                  "isObject",
+                                  false
+                                );
+                              }
+                            }}
                             className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                           >
+                            <option disabled selected>
+                              Select Type
+                            </option>
                             <option value="String">String</option>
                             <option value="Number">Number</option>
                             <option value="Boolean">Boolean</option>
@@ -460,15 +480,33 @@ export default function CustomSchema() {
                                     />
                                     <select
                                       value={nestedAttr.db_type}
-                                      onChange={(e) =>
+                                      onChange={(e) => {
+                                        const selectedType = e.target.value;
                                         handleNestedAttributeChange(
                                           schemaIndex,
                                           attrIndex,
                                           nestedIndex,
                                           "db_type",
                                           e.target.value
-                                        )
-                                      }
+                                        );
+                                        if (selectedType === "Object") {
+                                          handleNestedAttributeChange(
+                                            schemaIndex,
+                                            attrIndex,
+                                            nestedIndex,
+                                            "isObject",
+                                            true
+                                          );
+                                        } else {
+                                          handleNestedAttributeChange(
+                                            schemaIndex,
+                                            attrIndex,
+                                            nestedIndex,
+                                            "isObject",
+                                            false
+                                          );
+                                        }
+                                      }}
                                       className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                                     >
                                       <option value="String">String</option>
