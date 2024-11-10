@@ -313,12 +313,10 @@ function CreateRoute() {
                     <button
                       type="button"
                       onClick={() => handleRemoveRoutes(routeIndex)}
-                      className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-3"
+                      className="h-auto w-auto flex justify-evenly items-center text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-2"
                     >
                       Delete Route <IoMdTrash />
                     </button>
-                  </div>
-                  <div className="done flex justify-end mx-7">
                     <button
                       type="submit"
                       className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode ? "shadow-slate-500" : "shadow-black"} bg-blue-500 text-white px-4 py-2 rounded-md`}
