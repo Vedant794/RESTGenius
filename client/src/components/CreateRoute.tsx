@@ -137,23 +137,7 @@ function CreateRoute() {
         <GetStarted />
         <div className="container mx-auto p-4 -mt-[99vh] ml-52">
           <div className="routes ml-20">
-            {/* <div className="name flex justify-around items-center"> */}
             <h1 className="text-2xl font-bold mb-4">Create Routes</h1>
-            {/* <div>
-            <select
-             onChange={(e)=>{
-              handleSchemaName(e.target.value)
-             }}
-             className={`w-[25rem] rounded-xl ${mode ? 'bg-slate-100 text-black' : 'bg-[#282929] text-white shadow-black'} p-3 focus:outline-none mt-3 shadow-xl cursor-pointer`}
-            >
-              <option value="">Select Schemas for routes</option>
-              {schemas.map((val)=>(
-                <option value={val.schema_name}>{val.schema_name}</option>
-              ))}
-            </select>
-              {errors ? <div className="text-red-500 mt-2">*Please Select the Schema for Creating Routes</div> : <></>}
-            </div> */}
-            {/* </div> */}
             <div className="add-back flex justify-between items-center">
               <button
                 onClick={handleAddRoutes}
@@ -175,9 +159,7 @@ function CreateRoute() {
                     }}
                     className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   >
-                    <option disabled selected>
-                      Select Schema for routes
-                    </option>
+                    <option value={""}>Select Schema for routes</option>
                     {schemas.map((val) => (
                       <option value={val.schema_name}>{val.schema_name}</option>
                     ))}
