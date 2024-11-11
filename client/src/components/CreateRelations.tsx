@@ -12,7 +12,6 @@ function CreateRelations() {
   const { relation, setRelation } = useRelation();
   const { mode } = useTheme();
   const [schemaName, setSchemaName] = useState("");
-  const [errors, setErrors] = useState(false);
   const { projectName } = useProjectName();
   const { schemas } = useSchema();
 
@@ -31,8 +30,8 @@ function CreateRelations() {
     setRelation([
       ...relation,
       {
-        schema: "",
-        target: "",
+        schema: "select",
+        target: "select",
         lazyLoad: false, // Default boolean value
         type: "one-to-one", // Default type
       },
@@ -81,22 +80,13 @@ function CreateRelations() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (schemaName.length == 0) {
-      setErrors(true);
-    } else {
-      setErrors(false);
-      await handleRelationToBackend();
-    }
+    await handleRelationToBackend();
 
     alert(`Your Relations for ${schemaName} Schema has been added`);
   };
 
-  const handleSchemaName = (name: string) => {
-    setSchemaName(name);
-  };
-
   // console.log(relation)
+  // console.log(schemaName);
 
   return (
     <RelationContext.Provider value={{ relation, setRelation }}>
@@ -128,14 +118,13 @@ function CreateRelations() {
                   <span className="font-popins">Select Schema:-</span>
                   <select
                     value={relation.schema}
-                    onChange={(e) =>
-                      handleSchemaChange(relationInd, e.target.value)
-                    }
+                    onChange={(e) => {
+                      handleSchemaChange(relationInd, e.target.value);
+                      setSchemaName(e.target.value);
+                    }}
                     className={`w-[60%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   >
-                    <option disabled selected>
-                      Select
-                    </option>
+                    <option value={""}>Select</option>
                     {schemas.map((val) => (
                       <option value={val.schema_name}>{val.schema_name}</option>
                     ))}
@@ -152,9 +141,7 @@ function CreateRelations() {
                   }
                   className={`w-[60%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                 >
-                  <option disabled selected>
-                    Select
-                  </option>
+                  <option value={""}>Select</option>
                   {schemas.map((val) => (
                     <option value={val.schema_name}>{val.schema_name}</option>
                   ))}
@@ -185,8 +172,9 @@ function CreateRelations() {
                     }
                     className={`w-[60%] ml-3 px-4 py-2 mb-4 cursor-pointer rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   >
-                    <option value="one-to-one">One-to-One</option>
-                    <option value="one-to-many">One-to-Many</option>
+                    <option value="OneToOne">One-to-One</option>
+                    <option value="OneToMany">One-to-Many</option>
+                    <option value="ManyToMany">Many-to-Many</option>
                   </select>
                 </div>
                 <div className="navBtn flex justify-between items-center">
