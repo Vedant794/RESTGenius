@@ -5,16 +5,40 @@ import Navbar from "./Navbar";
 import useRoute, { RouteContext } from "./context/routeContext";
 import axios from "axios";
 import useProjectName from "./context/projectNameContext";
-import useSchema from "./context/schemaContext";
 import GetStarted from "./GetStarted";
 
 function CreateRoute() {
+  interface schemaType {
+    schema_name: "";
+    schema_dbname: "";
+    attributes: [];
+    routes: [];
+    _id: "";
+    relation: [];
+  }
+
+  interface routeType {
+    url: "";
+    service_name: "";
+    controller_name: "";
+    criterias: [];
+  }
+
+  interface routeWithId {
+    url: "";
+    service_name: "";
+    controller_name: "";
+    criterias: [];
+    _id: "";
+  }
+
   const { routes, setRoutes } = useRoute();
   const { mode } = useTheme();
   const { projectName } = useProjectName();
-  const { schemas } = useSchema();
+  const [schemas, setSchema] = useState<schemaType[]>([]);
   const [schemaName, setSchemaName] = useState("");
   const [errors, setErrors] = useState(false);
+  const [routeStore, setRouteStore] = useState<routeType[]>([]);
 
   type criteria = {
     targetVar: string;
@@ -98,6 +122,35 @@ function CreateRoute() {
     setRoutes(updatedRoutes);
   };
 
+  type routeWithout = Omit<routeWithId, "_id">;
+  const handleGetSchemas = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/backend/getProjectData/${projectName}`
+      );
+      const dataSchema = response.data.projectData.schemas;
+      setSchema(dataSchema);
+
+      const allRoutes: routeWithout[] = [];
+      dataSchema.map((schema: schemaType) => {
+        const fetchedData: routeWithout[] = schema.routes.map(
+          (route: routeWithId) => {
+            const { _id, ...rest } = route; // Remove _id from each route
+            return rest;
+          }
+        );
+        allRoutes.push(...fetchedData);
+      });
+      setRouteStore(allRoutes);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetSchemas();
+  }, [projectName]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -109,6 +162,8 @@ function CreateRoute() {
       localStorage.setItem("RoutesData", JSON.stringify(routeData));
       alert(`Your Routes for ${schemaName} Schema has been added`);
       handleRoutesToBackend();
+      setRoutes([]);
+      handleGetSchemas();
     }
   };
 
@@ -146,7 +201,21 @@ function CreateRoute() {
                 Add Routes <IoMdAdd />
               </button>
             </div>
-
+            {routeStore.length > 0 && (
+              <div className="outputDesc w-full h-auto px-2 py-4 shadow-lg">
+                <h2 className="">User Defined Routes</h2>
+                {routeStore.map((route, index) => (
+                  <div
+                    key={index}
+                    className="font-popins flex justify-between items-center font-medium text-xl px-4 mb-2"
+                  >
+                    <span>
+                      {index + 1}. {route.controller_name ?? "No Data"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             {routes.map((route, routeIndex) => (
               <div
                 className={`createRoute w-[60vw] ml-36 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 rounded-md`}

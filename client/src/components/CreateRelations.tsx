@@ -6,14 +6,39 @@ import useRelation, { RelationContext } from "./context/relationContext";
 import GetStarted from "./GetStarted";
 import axios from "axios";
 import useProjectName from "./context/projectNameContext";
-import useSchema from "./context/schemaContext";
+import deleteIcon from "../assets/bin.gif";
 
 function CreateRelations() {
+  interface schemaType {
+    schema_name: "";
+    schema_dbname: "";
+    attributes: [];
+    routes: [];
+    _id: "";
+    relation: [];
+  }
+
+  interface relationWithout {
+    schema: string;
+    target: string;
+    lazyLoad: boolean;
+    type: string;
+  }
+
+  interface relationType {
+    schema: string;
+    target: string;
+    lazyLoad: boolean;
+    type: string;
+    _id: string;
+  }
+
   const { relation, setRelation } = useRelation();
   const { mode } = useTheme();
   const [schemaName, setSchemaName] = useState("");
   const { projectName } = useProjectName();
-  const { schemas } = useSchema();
+  const [schemas, setSchema] = useState<schemaType[]>([]);
+  const [relate, setRelate] = useState<relationWithout[]>([]);
 
   useEffect(() => {
     const savedRoutes = localStorage.getItem("relation");
@@ -33,10 +58,44 @@ function CreateRelations() {
         schema: "select",
         target: "select",
         lazyLoad: false, // Default boolean value
-        type: "one-to-one", // Default type
+        type: "OneToOne", // Default type
       },
     ]);
   };
+
+  type relationWithoutID = Omit<relationType, "_id">;
+
+  const handleGetSchemas = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/backend/getProjectData/${projectName}`
+      );
+      const dataSchema = response.data.projectData.schemas;
+      setSchema(dataSchema);
+
+      // Accumulate relations from all schemas
+      const allRelations: relationWithoutID[] = [];
+
+      dataSchema.map((schema: schemaType) => {
+        const fetchedData: relationWithoutID[] = schema.relation.map(
+          (relation: relationType) => {
+            const { _id, ...rest } = relation; // Remove _id from each relation
+            return rest;
+          }
+        );
+        allRelations.push(...fetchedData); // Add relations from this schema
+      });
+
+      setRelate(allRelations); // Set all relations at once
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // console.log(schemas[0].relation);
+  useEffect(() => {
+    handleGetSchemas();
+  }, [projectName]);
 
   const handleRemoveRelations = (index: number) => {
     setRelation(relation.filter((_, idx) => idx !== index));
@@ -83,6 +142,8 @@ function CreateRelations() {
     await handleRelationToBackend();
 
     alert(`Your Relations for ${schemaName} Schema has been added`);
+    setRelation([]);
+    handleGetSchemas();
   };
 
   // console.log(relation)
@@ -107,6 +168,28 @@ function CreateRelations() {
               <IoMdAdd />
             </button>
           </div>
+          {relate.length > 0 && (
+            <div className="outputDesc w-full h-auto px-2 py-4 shadow-lg">
+              <h2 className="">User Defined Relations</h2>
+              {relate.map((relation, index) => (
+                <div
+                  key={index}
+                  className="font-popins flex justify-between items-center font-medium text-xl px-4 mb-2"
+                >
+                  <span>
+                    {index + 1}. {relation.schema ?? "No Data"}
+                  </span>
+                  {/* <img
+                    src={deleteIcon}
+                    alt="Delete"
+                    width={30}
+                    height={30}
+                    className="cursor-pointer"
+                  /> */}
+                </div>
+              ))}
+            </div>
+          )}
 
           {relation.map((relation, relationInd) => (
             <div
@@ -125,8 +208,10 @@ function CreateRelations() {
                     className={`w-[60%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   >
                     <option value={""}>Select</option>
-                    {schemas.map((val) => (
-                      <option value={val.schema_name}>{val.schema_name}</option>
+                    {schemas.map((val, ind) => (
+                      <option key={ind} value={val.schema_name}>
+                        {val.schema_name}
+                      </option>
                     ))}
                   </select>
                 </div>
