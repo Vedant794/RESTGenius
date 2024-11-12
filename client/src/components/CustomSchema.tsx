@@ -7,12 +7,30 @@ import useProjectName from "./context/projectNameContext";
 import axios from "axios";
 import useSchemaIndex, { SchemaIndexContext } from "./context/SchemaIndex";
 import GetStarted from "./GetStarted";
+import deleteIcon from "../assets/bin.gif";
 
 export default function CustomSchema() {
+  interface schemaType {
+    schema_name: "";
+    schema_dbname: "";
+    attributes: [];
+    routes: [];
+    relation: [];
+  }
+
+  interface schemaFromBack {
+    schema_name: "";
+    schema_dbname: "";
+    attributes: [];
+    routes: [];
+    _id: "";
+    relation: [];
+  }
+
   const { schemas, setSchemas } = useSchema();
   const { mode } = useTheme();
   const { ind, setIndex } = useSchemaIndex();
-
+  const [backSchema, setBackSchema] = useState<schemaType[]>([]);
   const { projectName } = useProjectName();
 
   type Attribute = {
@@ -26,7 +44,7 @@ export default function CustomSchema() {
     isDate: boolean;
     isUUID: boolean;
     isIndexed: boolean;
-    objectAttributes: Attribute[]; // For nested attributes
+    attributes: Attribute[]; // For nested attributes
   };
 
   useEffect(() => {
@@ -48,7 +66,7 @@ export default function CustomSchema() {
         schema_dbname: "",
         attributes: [],
         routes: [],
-        relations: [],
+        relation: [],
       },
     ]);
   };
@@ -57,14 +75,25 @@ export default function CustomSchema() {
     setSchemas(schemas.filter((_, idx) => idx !== index));
   };
 
-  const handleRemoveSchemaToBackend = async () => {
+  const handleRemoveSchemaToBackend = async (index: number) => {
     try {
-      const schemaName = schemas[ind].schema_name;
+      const schemaName = backSchema[index]?.schema_name;
+      if (!schemaName) {
+        console.error("Schema name not found!");
+        return;
+      }
+
+      // Delete schema from backend
       await axios.delete(
         `http://localhost:3000/backend/deleteSchema/${projectName}/${schemaName}`
       );
+
+      // Remove schema from state (immutable update)
+      const updatedBackSchema = [...backSchema];
+      updatedBackSchema.splice(index, 1);
+      setBackSchema(updatedBackSchema);
     } catch (error) {
-      console.error(error);
+      console.error("Error deleting schema:", error);
     }
   };
 
@@ -94,7 +123,7 @@ export default function CustomSchema() {
       isDate: false,
       isUUID: false,
       isIndexed: false,
-      objectAttributes: [],
+      attributes: [],
     });
     setSchemas(updatedSchemas);
   };
@@ -112,7 +141,7 @@ export default function CustomSchema() {
 
   const handleAddNestedAttribute = (schemaIndex: number, attrIndex: number) => {
     const updatedSchemas = [...schemas];
-    updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes.push({
+    updatedSchemas[schemaIndex].attributes[attrIndex].attributes.push({
       var_name: "",
       db_type: "String",
       var_dbname: "",
@@ -123,7 +152,7 @@ export default function CustomSchema() {
       isDate: false,
       isUUID: false,
       isIndexed: false,
-      objectAttributes: [],
+      attributes: [],
     });
     setSchemas(updatedSchemas);
   };
@@ -143,8 +172,8 @@ export default function CustomSchema() {
     nestedIndex: number
   ) => {
     const updatedSchemas = [...schemas];
-    updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes =
-      updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes.filter(
+    updatedSchemas[schemaIndex].attributes[attrIndex].attributes =
+      updatedSchemas[schemaIndex].attributes[attrIndex].attributes.filter(
         (nestedAttribute: Attribute, idx: number) => idx !== nestedIndex
       );
     setSchemas(updatedSchemas);
@@ -158,20 +187,42 @@ export default function CustomSchema() {
     value: any
   ) => {
     const updatedSchemas = [...schemas];
-    updatedSchemas[schemaIndex].attributes[attrIndex].objectAttributes[
-      nestedIndex
-    ][field] = value;
+    updatedSchemas[schemaIndex].attributes[attrIndex].attributes[nestedIndex][
+      field
+    ] = value;
     setSchemas(updatedSchemas);
   };
 
-  const handleSubmit = (e: React.FormEvent, index: number) => {
+  type SchemaWithoutId = Omit<schemaType, "_id">;
+  const handleBackSchemas = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/backend/getProjectData/${projectName}`
+      );
+      // console.log(response.data.projectData.schemas);
+      const fetchedData: SchemaWithoutId[] =
+        response.data.projectData.schemas.map((schema: schemaFromBack) => {
+          const { _id, ...rest } = schema;
+          return rest;
+        });
+      setBackSchema(fetchedData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent, index: number) => {
     e.preventDefault();
 
     const schemaData = schemas;
     // Save the schema to localStorage
     localStorage.setItem("schemaData", JSON.stringify(schemaData));
     setIndex(index);
+    await handleAddSchemaToBackend(index);
+    setSchemas([]);
+    handleBackSchemas();
   };
+  // console.log(backSchema);
 
   const handleAddSchemaToBackend = async (index: number) => {
     try {
@@ -191,6 +242,10 @@ export default function CustomSchema() {
   const handleSetAlert = () => {
     alert("Your Schema has been added you can create more or move further");
   };
+
+  useEffect(() => {
+    handleBackSchemas();
+  }, [projectName]);
 
   // console.log(schemas)
   // console.log(projectName)
@@ -214,11 +269,33 @@ export default function CustomSchema() {
               >
                 Add New Schema
               </button>
+              {backSchema?.length > 0 && (
+                <div className="outputDesc w-full h-auto px-2 py-4 shadow-lg">
+                  {backSchema.map((schema, index) => (
+                    <div
+                      key={index}
+                      className="font-popins flex justify-between items-center font-medium text-xl px-4"
+                    >
+                      <span>
+                        {index + 1}. {schema.schema_name ?? "No Data"}
+                      </span>
+                      <img
+                        src={deleteIcon}
+                        alt="Delete"
+                        width={30}
+                        height={30}
+                        className="cursor-pointer"
+                        onClick={() => handleRemoveSchemaToBackend(index)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {schemas.map((schema, schemaIndex) => (
                 <div
                   key={schemaIndex}
-                  className={`schema-section w-[60vw] ml-36 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 rounded-md`}
+                  className={`schema-section w-[60vw] mt-9 ml-36 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 rounded-md`}
                 >
                   <form
                     action=""
@@ -306,9 +383,7 @@ export default function CustomSchema() {
                             }}
                             className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                           >
-                            <option disabled selected>
-                              Select Type
-                            </option>
+                            <option value={""}>Select Type</option>
                             <option value="String">String</option>
                             <option value="Number">Number</option>
                             <option value="Boolean">Boolean</option>
@@ -457,7 +532,7 @@ export default function CustomSchema() {
                                 Add Nested Field <IoMdAdd />
                               </button>
 
-                              {attribute.objectAttributes.map(
+                              {attribute.attributes.map(
                                 (nestedAttr, nestedIndex: number) => (
                                   <div
                                     key={nestedIndex}
@@ -682,7 +757,7 @@ export default function CustomSchema() {
                         type="button"
                         onClick={() => {
                           handleRemoveSchema(schemaIndex);
-                          handleRemoveSchemaToBackend();
+                          handleRemoveSchemaToBackend(schemaIndex);
                         }}
                         className="h-auto w-auto text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
                       >
@@ -691,7 +766,6 @@ export default function CustomSchema() {
 
                       <button
                         type="submit"
-                        onClick={() => handleAddSchemaToBackend(schemaIndex)}
                         className={`h-auto w-auto px-3 py-2 flex items-center shadow-lg ${mode ? "shadow-gray-600" : "shadow-black"} rounded-xl mb-4 bg-green-500 text-white font-bold text-xl transition duration-300 transform hover:scale-110`}
                       >
                         Done

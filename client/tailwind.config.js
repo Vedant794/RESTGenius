@@ -10,6 +10,7 @@ export default {
       fontFamily: {
         "custom-font": "Oxanium, sans-serif",
         popins: "Poppins,sans-serif",
+        sour: "Sour Gummy, cursive",
       },
     },
   },

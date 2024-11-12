@@ -1,15 +1,26 @@
 import mongoose from "mongoose";
 
 // Define the schema for individual attributes in each schema
-const attributeSchema = new mongoose.Schema({
-  var_name: { type: String, required: false, default: "" }, // Default empty string
-  db_type: { type: String, required: false, default: "" }, // Default empty string
-  var_dbname: { type: String, required: false, default: "" }, // Default empty string
-  isUUID: { type: Boolean, default: null }, // Default null if not provided
-  isRequired: { type: Boolean, default: null },
-  isIndexed: { type: Boolean, default: null },
-  isSet: { type: Boolean, default: null },
-});
+const attributeSchema = new mongoose.Schema(
+  {
+    var_name: { type: String, required: false, default: "" }, // Default empty string
+    db_type: { type: String, required: false, default: "" }, // Default empty string
+    var_dbname: { type: String, required: false, default: "" }, // Default empty string
+    isUUID: { type: Boolean, default: undefined }, // Default null if not provided
+    isRequired: { type: Boolean, default: undefined },
+    isObject: { type: Boolean, default: undefined },
+    isDate: { type: Boolean, default: undefined },
+    isList: { type: Boolean, default: undefined },
+    isIndexed: { type: Boolean, default: undefined },
+    isSet: { type: Boolean, default: undefined },
+    attributes: {
+      type: [this],
+      default: undefined,
+      required: false,
+    },
+  },
+  { minimize: true }
+);
 
 // Define the schema for routes within each schema
 const routeSchema = new mongoose.Schema({

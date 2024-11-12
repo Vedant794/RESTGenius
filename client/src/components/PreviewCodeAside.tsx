@@ -84,7 +84,7 @@ const FileNode: React.FC<{
     <li className="mb-5">
       <span
         onClick={toggleFolder}
-        className="cursor-pointer text-lg font-custom-font font-medium"
+        className="cursor-pointer text-lg font-sour font-medium"
       >
         {isOpen ? "📂" : "📁"} {name}
       </span>
