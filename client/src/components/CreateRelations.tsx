@@ -194,7 +194,7 @@ function CreateRelations() {
           {relation.map((relation, relationInd) => (
             <div
               key={relationInd}
-              className={`relationContent w-[50vw] ml-32 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 `}
+              className={`relationContent w-[50vw] mt-8 ml-32 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 `}
             >
               <form onSubmit={handleSubmit}>
                 <div className="select">
@@ -227,8 +227,10 @@ function CreateRelations() {
                   className={`w-[60%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                 >
                   <option value={""}>Select</option>
-                  {schemas.map((val) => (
-                    <option value={val.schema_name}>{val.schema_name}</option>
+                  {schemas.map((val, ind) => (
+                    <option key={ind} value={val.schema_name}>
+                      {val.schema_name}
+                    </option>
                   ))}
                 </select>
 
