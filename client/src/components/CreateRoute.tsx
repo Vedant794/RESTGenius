@@ -218,7 +218,7 @@ function CreateRoute() {
             )}
             {routes.map((route, routeIndex) => (
               <div
-                className={`createRoute w-[60vw] ml-36 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 rounded-md`}
+                className={`createRoute w-[60vw] mt-8 ml-36 shadow-custom-heavy ${mode ? "bg-gray-100" : "bg-[#202725] shadow-black"} p-4 mb-6 rounded-md`}
                 key={routeIndex}
               >
                 <form action="" onSubmit={handleSubmit}>
@@ -278,6 +278,7 @@ function CreateRoute() {
                         className={`criteriaAdd p-4 mb-3 rounded-md shadow-xl`}
                       >
                         <input
+                          key={criteriaInd}
                           type="text"
                           placeholder="Enter Target Name"
                           value={criteria.targetVar}
@@ -293,6 +294,7 @@ function CreateRoute() {
                         />
 
                         <select
+                          key={criteriaInd}
                           value={criteria.valueType}
                           onChange={(e) => {
                             handleCriteriaChange(
@@ -304,6 +306,7 @@ function CreateRoute() {
                           }}
                           className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                         >
+                          <option value="">Select Type</option>
                           <option value="Integer">Integer</option>
                           <option value="String">String</option>
                         </select>
@@ -311,6 +314,7 @@ function CreateRoute() {
                         {criteria.valueType === "String" ? (
                           <>
                             <select
+                              key={criteriaInd}
                               value={criteria.operationType}
                               onChange={(e) => {
                                 handleCriteriaChange(
@@ -322,6 +326,7 @@ function CreateRoute() {
                               }}
                               className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                             >
+                              <option value="">Select Operation</option>
                               <option value="EXACT_MATCH">EXACT_MATCH</option>
                               <option value="REGEX">REGEX</option>
                               <option value="FULL_TEXT">FULL_TEXT</option>
@@ -330,6 +335,7 @@ function CreateRoute() {
                         ) : (
                           <>
                             <select
+                              key={criteriaInd}
                               value={criteria.operationType}
                               onChange={(e) => {
                                 handleCriteriaChange(

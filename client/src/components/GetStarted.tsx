@@ -57,7 +57,7 @@ export default function GetStarted() {
       {/* Main container with flex layout */}
       <div className="flex h-screen mt-[13vh] w-auto">
         <aside
-          className={`side-navBar font-sour font-semibold text-lg h-[88vh] w-[16vw] fixed ${mode ? "bg-slate-100" : "bg-[#323939]"} flex flex-col items-center justify-between`}
+          className={`side-navBar font-sour font-medium h-[88vh] w-[16vw] fixed ${mode ? "bg-slate-100" : "bg-[#323939]"} flex flex-col items-center justify-between`}
         >
           <ul className="mb-2">
             {customizeOptions.map((element) => (
