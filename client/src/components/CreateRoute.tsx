@@ -273,6 +273,7 @@ function CreateRoute() {
                   <div className="flex items-center mb-2">
                     <input
                       type="checkbox"
+                      key={routeIndex}
                       checked={route.isPaginated}
                       onChange={(e) =>
                         handlePaginatedChange(routeIndex, e.target.checked)
