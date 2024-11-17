@@ -32,6 +32,8 @@ const routeSchema = new mongoose.Schema({
       targetVar: { type: String, default: "" }, // Default empty string
       operationType: { type: String, default: "" }, // Default empty string
       valueType: { type: String, default: "" }, // Default empty string
+      isList: { type: Boolean, default: false }, // Default to false
+      isPaginated: { type: Boolean, default: false }, // Default to false
     },
   ],
 });
