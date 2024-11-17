@@ -44,6 +44,8 @@ function CreateRoute() {
     targetVar: string;
     operationType: string;
     valueType: string;
+    isList: boolean;
+    isPaginated: boolean;
   };
 
   useEffect(() => {
@@ -292,68 +294,153 @@ function CreateRoute() {
                           }}
                           className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                         />
+                        <div className="valueType flex items-center mb-4">
+                          <label>Select value Type</label>
+                          <select
+                            key={criteriaInd}
+                            value={criteria.valueType}
+                            onChange={(e) => {
+                              handleCriteriaChange(
+                                routeIndex,
+                                criteriaInd,
+                                "valueType",
+                                e.target.value
+                              );
+                            }}
+                            className={`w-[70%] px-4 ml-3 py-2 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                          >
+                            <option disabled>Select Type</option>
+                            <option value="Integer">Integer</option>
+                            <option value="String">String</option>
+                            <option value="Date">Date</option>
+                            <option value="Boolean">Boolean</option>
+                          </select>
+                        </div>
+                        <div className="operationType flex items-center mb-4">
+                          <label>Select Operation Type</label>
 
-                        <select
-                          key={criteriaInd}
-                          value={criteria.valueType}
-                          onChange={(e) => {
-                            handleCriteriaChange(
-                              routeIndex,
-                              criteriaInd,
-                              "valueType",
-                              e.target.value
-                            );
-                          }}
-                          className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
-                        >
-                          <option value="">Select Type</option>
-                          <option value="Integer">Integer</option>
-                          <option value="String">String</option>
-                        </select>
+                          {criteria.valueType === "String" ? (
+                            <>
+                              <select
+                                key={criteriaInd}
+                                value={criteria.operationType}
+                                onChange={(e) => {
+                                  handleCriteriaChange(
+                                    routeIndex,
+                                    criteriaInd,
+                                    "operationType",
+                                    e.target.value
+                                  );
+                                }}
+                                className={`w-[70%] px-4 py-2 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                              >
+                                <option disabled>Select Operation</option>
+                                <option value="EXACT_MATCH">EXACT_MATCH</option>
+                                <option value="REGEX">REGEX</option>
+                                <option value="FULL_TEXT">FULL_TEXT</option>
+                              </select>
+                            </>
+                          ) : criteria.valueType === "Integer" ? (
+                            <>
+                              <select
+                                key={criteriaInd}
+                                value={criteria.operationType}
+                                onChange={(e) => {
+                                  handleCriteriaChange(
+                                    routeIndex,
+                                    criteriaInd,
+                                    "operationType",
+                                    e.target.value
+                                  );
+                                }}
+                                className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                              >
+                                <option value="LESS_THAN">LESS_THAN</option>
+                                <option value="GREATER_THAN">
+                                  GREATER_THAN
+                                </option>
+                                <option value="BETWEEN">BETWEEN</option>
+                                <option value="EQUAL_TO">EQUAL_TO</option>
+                              </select>
+                            </>
+                          ) : criteria.valueType === "Date" ? (
+                            <>
+                              <select
+                                key={criteriaInd}
+                                value={criteria.operationType}
+                                onChange={(e) => {
+                                  handleCriteriaChange(
+                                    routeIndex,
+                                    criteriaInd,
+                                    "operationType",
+                                    e.target.value
+                                  );
+                                }}
+                                className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                              >
+                                <option value="After">After</option>
+                                <option value="Before">Before</option>
+                                <option value="Exact_Match">Exact_Match</option>
+                                <option value="Range">Range</option>
+                              </select>
+                            </>
+                          ) : (
+                            <>
+                              <select
+                                key={criteriaInd}
+                                value={criteria.operationType}
+                                onChange={(e) => {
+                                  handleCriteriaChange(
+                                    routeIndex,
+                                    criteriaInd,
+                                    "operationType",
+                                    e.target.value
+                                  );
+                                }}
+                                className={`w-[70%] ml-3 px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
+                              >
+                                <option value="isTrue">isTrue</option>
+                                <option value="isFalse">isFalse</option>
+                              </select>
+                            </>
+                          )}
+                        </div>
 
-                        {criteria.valueType === "String" ? (
-                          <>
-                            <select
+                        <div className="islist flex justify-evenly items-center mb-2 mt-2 text-lg font-sour">
+                          <label className="flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
                               key={criteriaInd}
-                              value={criteria.operationType}
+                              checked={criteria.isList}
                               onChange={(e) => {
                                 handleCriteriaChange(
                                   routeIndex,
                                   criteriaInd,
-                                  "operationType",
-                                  e.target.value
+                                  "isList",
+                                  e.target.checked
                                 );
                               }}
-                              className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
-                            >
-                              <option value="">Select Operation</option>
-                              <option value="EXACT_MATCH">EXACT_MATCH</option>
-                              <option value="REGEX">REGEX</option>
-                              <option value="FULL_TEXT">FULL_TEXT</option>
-                            </select>
-                          </>
-                        ) : (
-                          <>
-                            <select
+                            />
+                            <span className="ml-2">isList</span>
+                          </label>
+                          <label className="flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
                               key={criteriaInd}
-                              value={criteria.operationType}
+                              checked={criteria.isPaginated}
                               onChange={(e) => {
                                 handleCriteriaChange(
                                   routeIndex,
                                   criteriaInd,
-                                  "operationType",
-                                  e.target.value
+                                  "isPaginated",
+                                  e.target.checked
                                 );
                               }}
-                              className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
-                            >
-                              <option value="LESS_THAN">LESS_THAN</option>
-                              <option value="GREATER_THAN">GREATER_THAN</option>
-                              <option value="BETWEEN">BETWEEN</option>
-                              <option value="EQUAL_TO">EQUAL_TO</option>
-                            </select>
-                          </>
-                        )}
+                            />
+                            <span className="ml-2">isPaginated</span>
+                          </label>
+                        </div>
+
                         <button
                           type="button"
                           onClick={() =>
