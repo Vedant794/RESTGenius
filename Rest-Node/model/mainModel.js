@@ -27,13 +27,13 @@ const routeSchema = new mongoose.Schema({
   url: { type: String, required: false, default: "" }, // Default empty string
   service_name: { type: String, required: false, default: "" }, // Default empty string
   controller_name: { type: String, required: false, default: "" }, // Default empty string
+  isPaginated: { type: Boolean, default: false }, // Default to false
   criterias: [
     {
       targetVar: { type: String, default: "" }, // Default empty string
       operationType: { type: String, default: "" }, // Default empty string
       valueType: { type: String, default: "" }, // Default empty string
       isList: { type: Boolean, default: false }, // Default to false
-      isPaginated: { type: Boolean, default: false }, // Default to false
     },
   ],
 });

@@ -45,7 +45,6 @@ function CreateRoute() {
     operationType: string;
     valueType: string;
     isList: boolean;
-    isPaginated: boolean;
   };
 
   useEffect(() => {
@@ -66,6 +65,7 @@ function CreateRoute() {
         url: "",
         service_name: "",
         controller_name: "",
+        isPaginated: false,
         criterias: [],
       },
     ]);
@@ -169,6 +169,12 @@ function CreateRoute() {
     }
   };
 
+  const handlePaginatedChange = (index: number, value: boolean) => {
+    const updatedRoutes = [...routes];
+    updatedRoutes[index].isPaginated = value;
+    setRoutes(updatedRoutes);
+  };
+
   const handleRoutesToBackend = async () => {
     try {
       const response = await axios.post(
@@ -264,6 +270,16 @@ function CreateRoute() {
                     }}
                     className={`w-full px-4 py-2 mb-4 rounded-md shadow-lg ${mode ? "bg-white" : "bg-[#282929] shadow-black"} focus:outline-none`}
                   />
+                  <div className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      checked={route.isPaginated}
+                      onChange={(e) =>
+                        handlePaginatedChange(routeIndex, e.target.checked)
+                      }
+                    />
+                    <span className="ml-2 font-sour">isPaginated</span>
+                  </div>
 
                   <button
                     type="button"
@@ -406,7 +422,7 @@ function CreateRoute() {
                           )}
                         </div>
 
-                        <div className="islist flex justify-evenly items-center mb-2 mt-2 text-lg font-sour">
+                        <div className="islist mb-2 text-lg font-sour">
                           <label className="flex items-center cursor-pointer">
                             <input
                               type="checkbox"
@@ -422,22 +438,6 @@ function CreateRoute() {
                               }}
                             />
                             <span className="ml-2">isList</span>
-                          </label>
-                          <label className="flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              key={criteriaInd}
-                              checked={criteria.isPaginated}
-                              onChange={(e) => {
-                                handleCriteriaChange(
-                                  routeIndex,
-                                  criteriaInd,
-                                  "isPaginated",
-                                  e.target.checked
-                                );
-                              }}
-                            />
-                            <span className="ml-2">isPaginated</span>
                           </label>
                         </div>
 
