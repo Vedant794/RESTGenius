@@ -49,6 +49,8 @@ const relationSchema = new mongoose.Schema({
     enum: ["OneToOne", "OneToMany", "ManyToMany"], // Only allow specific types
     default: "OneToOne", // Default type
   },
+  lazySave: { type: Boolean, default: false },
+  cascadeSave: { type: Boolean, default: false },
 });
 
 // Define the schema for each individual schema
