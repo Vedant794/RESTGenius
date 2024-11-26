@@ -183,7 +183,7 @@ const PreviewCodeAside: React.FC<{ preview: OutputDTO | undefined }> = ({
   return (
     <div className="mt-[13vh] w-auto">
       <aside
-        className={`side-navBar h-[90vh] overflow-y-auto w-[16vw] fixed flex flex-col items-center justify-between  ${mode ? "bg-slate-100" : "bg-[#323939] text-white"}`}
+        className={`side-navBar h-[90vh] overflow-y-auto overflow-x-auto w-[18vw] fixed flex flex-col items-center justify-between  ${mode ? "bg-slate-100" : "bg-[#323939] text-white"}`}
       >
         <FileTree
           tree={tree}

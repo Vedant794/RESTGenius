@@ -50,7 +50,7 @@ const relationSchema = new mongoose.Schema({
     default: "OneToOne", // Default type
   },
   lazySave: { type: Boolean, default: false },
-  cascadeSave: { type: Boolean, default: false },
+  cascadeDelete: { type: Boolean, default: false },
 });
 
 // Define the schema for each individual schema
