@@ -8,6 +8,7 @@ import axios from "axios";
 import useSchemaIndex, { SchemaIndexContext } from "./context/SchemaIndex";
 import GetStarted from "./GetStarted";
 import deleteIcon from "../assets/bin.gif";
+import { schemaFunc } from "./operations/schemaFunction";
 
 export default function CustomSchema() {
   interface schemaType {
@@ -57,23 +58,6 @@ export default function CustomSchema() {
   useEffect(() => {
     sessionStorage.setItem("schemas", JSON.stringify(schemas));
   }, [schemas]);
-
-  const handleAddSchema = () => {
-    setSchemas([
-      ...schemas,
-      {
-        schema_name: "",
-        schema_dbname: "",
-        attributes: [],
-        routes: [],
-        relation: [],
-      },
-    ]);
-  };
-
-  const handleRemoveSchema = (index: number) => {
-    setSchemas(schemas.filter((_, idx) => idx !== index));
-  };
 
   const handleRemoveSchemaToBackend = async (index: number) => {
     try {
@@ -264,7 +248,7 @@ export default function CustomSchema() {
 
               <button
                 type="button"
-                onClick={handleAddSchema}
+                onClick={() => schemaFunc.handleAddSchema(schemas, setSchemas)}
                 className={`h-auto w-auto text-lg font-medium shadow-lg  ${mode ? "shadow-slate-500" : "shadow-black"} bg-blue-500 text-white px-4 py-2 mb-4 rounded-md`}
               >
                 Add New Schema
@@ -756,8 +740,11 @@ export default function CustomSchema() {
                       <button
                         type="button"
                         onClick={() => {
-                          handleRemoveSchema(schemaIndex);
-                          handleRemoveSchemaToBackend(schemaIndex);
+                          schemaFunc.handleRemoveSchema(
+                            schemas,
+                            setSchemas,
+                            schemaIndex
+                          );
                         }}
                         className="h-auto w-auto text-lg font-medium shadow-xl bg-red-600 text-white px-4 py-2 rounded-md mt-4"
                       >

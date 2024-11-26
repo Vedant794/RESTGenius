@@ -23,6 +23,8 @@ function CreateRelations() {
     target: string;
     lazyLoad: boolean;
     type: string;
+    lazySave: boolean;
+    cascadeDelete: boolean;
   }
 
   interface relationType {
@@ -30,6 +32,8 @@ function CreateRelations() {
     target: string;
     lazyLoad: boolean;
     type: string;
+    lazySave: boolean;
+    cascadeDelete: boolean;
     _id: string;
   }
 
@@ -59,6 +63,8 @@ function CreateRelations() {
         target: "select",
         lazyLoad: false, // Default boolean value
         type: "OneToOne", // Default type
+        lazySave: false, // Default boolean value
+        cascadeDelete: false, // Default boolean value
       },
     ]);
   };
@@ -122,6 +128,18 @@ function CreateRelations() {
   const handleTypeChange = (index: number, value: string) => {
     const updatedRelation = [...relation];
     updatedRelation[index].type = value;
+    setRelation(updatedRelation);
+  };
+
+  const handlelazySaveChange = (index: number, value: boolean) => {
+    const updatedRelation = [...relation];
+    updatedRelation[index].lazySave = value;
+    setRelation(updatedRelation);
+  };
+
+  const handleCascadeDeleteChange = (index: number, value: boolean) => {
+    const updatedRelation = [...relation];
+    updatedRelation[index].cascadeDelete = value;
     setRelation(updatedRelation);
   };
 
@@ -263,6 +281,16 @@ function CreateRelations() {
                     <option value="OneToMany">One-to-Many</option>
                     <option value="ManyToMany">Many-to-Many</option>
                   </select>
+                </div>
+                <div className="boxes flex flex-col ml-3 space-y-2 mb-2">
+                  <div>
+                    <input type="checkbox" />
+                    <span className="ml-2 font-sour">lazySave</span>
+                  </div>
+                  <div>
+                    <input type="checkbox" />
+                    <span className="ml-2 font-sour">cascadeDelete</span>
+                  </div>
                 </div>
                 <div className="navBtn flex justify-between items-center">
                   <button

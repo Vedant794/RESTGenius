@@ -70,14 +70,14 @@ function PreviewCode() {
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
-      .replace(/&amp;/g, "&"); // Replacing &amp; to & in case of encoded ampersands
-
+      .replace(/&amp;/g, "&") // Replacing &amp; to & in case of encoded ampersands
+      .replace(/&#39;/g, "'");
     // Format the cleaned Java code
-    const formatted = beautify(cleanJavaCode, {
+    let formatted = beautify(cleanJavaCode, {
       indent_size: 2, // Configure the indentation level
       preserve_newlines: true,
     });
-
+    formatted = formatted.replace(/\(\)\s*-\s*>/g, "()->");
     return formatted;
   }
 
