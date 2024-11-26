@@ -6,7 +6,6 @@ import useRelation, { RelationContext } from "./context/relationContext";
 import GetStarted from "./GetStarted";
 import axios from "axios";
 import useProjectName from "./context/projectNameContext";
-import deleteIcon from "../assets/bin.gif";
 
 function CreateRelations() {
   interface schemaType {
@@ -18,7 +17,7 @@ function CreateRelations() {
     relation: [];
   }
 
-  interface relationWithout {
+  interface relationType {
     schema: string;
     target: string;
     lazyLoad: boolean;
@@ -27,7 +26,7 @@ function CreateRelations() {
     cascadeDelete: boolean;
   }
 
-  interface relationType {
+  interface relationWithId {
     schema: string;
     target: string;
     lazyLoad: boolean;
@@ -42,17 +41,17 @@ function CreateRelations() {
   const [schemaName, setSchemaName] = useState("");
   const { projectName } = useProjectName();
   const [schemas, setSchema] = useState<schemaType[]>([]);
-  const [relate, setRelate] = useState<relationWithout[]>([]);
+  const [relate, setRelate] = useState<relationType[]>([]);
 
   useEffect(() => {
-    const savedRoutes = localStorage.getItem("relation");
-    if (savedRoutes) {
-      setRelation(JSON.parse(savedRoutes));
+    const savedRelation = sessionStorage.getItem("relation");
+    if (savedRelation) {
+      setRelation(JSON.parse(savedRelation));
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("relation", JSON.stringify(relation));
+    sessionStorage.setItem("relation", JSON.stringify(relation));
   }, [relation]);
 
   const handleAddRelation = () => {
@@ -69,7 +68,7 @@ function CreateRelations() {
     ]);
   };
 
-  type relationWithoutID = Omit<relationType, "_id">;
+  type relationWithoutID = Omit<relationWithId, "_id">;
 
   const handleGetSchemas = async () => {
     try {
@@ -84,7 +83,7 @@ function CreateRelations() {
 
       dataSchema.map((schema: schemaType) => {
         const fetchedData: relationWithoutID[] = schema.relation.map(
-          (relation: relationType) => {
+          (relation: relationWithId) => {
             const { _id, ...rest } = relation; // Remove _id from each relation
             return rest;
           }
@@ -157,15 +156,18 @@ function CreateRelations() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleRelationToBackend();
+
+    localStorage.setItem("relation", JSON.stringify(relation));
 
     alert(`Your Relations for ${schemaName} Schema has been added`);
+    await handleRelationToBackend();
     setRelation([]);
     handleGetSchemas();
   };
 
-  // console.log(relation)
+  // console.log(relation);
   // console.log(schemaName);
+  // console.log(relate);
 
   return (
     <RelationContext.Provider value={{ relation, setRelation }}>
@@ -284,11 +286,24 @@ function CreateRelations() {
                 </div>
                 <div className="boxes flex flex-col ml-3 space-y-2 mb-2">
                   <div>
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      onChange={() =>
+                        handlelazySaveChange(relationInd, !relation.lazySave)
+                      }
+                    />
                     <span className="ml-2 font-sour">lazySave</span>
                   </div>
                   <div>
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      onChange={() =>
+                        handleCascadeDeleteChange(
+                          relationInd,
+                          !relation.cascadeDelete
+                        )
+                      }
+                    />
                     <span className="ml-2 font-sour">cascadeDelete</span>
                   </div>
                 </div>
@@ -312,7 +327,7 @@ function CreateRelations() {
           ))}
         </div>
       </div>
-      <pre>{JSON.stringify({ relation }, null, 2)}</pre>
+      {/* <pre>{JSON.stringify({ relation }, null, 2)}</pre> */}
     </RelationContext.Provider>
   );
 }

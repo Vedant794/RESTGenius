@@ -153,7 +153,7 @@ function CreateRoute() {
     handleGetSchemas();
   }, [projectName]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (schemaName.length == 0) {
@@ -163,7 +163,7 @@ function CreateRoute() {
 
       localStorage.setItem("RoutesData", JSON.stringify(routeData));
       alert(`Your Routes for ${schemaName} Schema has been added`);
-      handleRoutesToBackend();
+      await handleRoutesToBackend();
       setRoutes([]);
       handleGetSchemas();
     }
